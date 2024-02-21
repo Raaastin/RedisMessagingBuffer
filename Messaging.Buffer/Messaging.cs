@@ -54,11 +54,15 @@ namespace Messaging.Buffer
                 // Case: dedicated handler
                 try
                 {
-                    handler.DynamicInvoke(e.CorrelationId, e.Value);
+                    var assembly = Assembly.GetEntryAssembly();
+                    var name = $"{e.MessageType}, {assembly.FullName}";
+                    var type = Type.GetType(name);
+                    var payload = JsonConvert.DeserializeObject(e.Value, type);
+                    handler.DynamicInvoke(e.CorrelationId, payload);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Response could not be handled. Error when calling delegate.");
+                    _logger.LogError(ex, "Request could not be handled. Error when calling delegate.");
                 }
             }
             else
@@ -110,7 +114,7 @@ namespace Messaging.Buffer
         public async Task<long> PublishRequestAsync(string correlationId, RequestBase request)
         {
             var requestJson = request.ToJson();
-            var type = request.GetType().Name;
+            var type = request.GetType().FullName;
             var channel = $"Request:{correlationId}:{type}";
             long received = 0;
 
@@ -144,13 +148,13 @@ namespace Messaging.Buffer
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Could not Publish response {Response} to channel {Channel}", response.GetType().Name, channel);
+                _logger.LogError(ex, "Could not Publish response {Response} to channel {Channel}", response.GetType().FullName, channel);
             }
 
             if (received == 0)
-                _logger.LogWarning($"Response for of type {response.GetType().Name} with correlation id {correlationId} lost.");
+                _logger.LogWarning($"Response for of type {response.GetType().FullName} with correlation id {correlationId} lost.");
             if (received > 1)
-                _logger.LogWarning($"More than one instance received the Response of type {response.GetType().Name} with correlation id {correlationId}");
+                _logger.LogWarning($"More than one instance received the Response of type {response.GetType().FullName} with correlation id {correlationId}");
         }
 
         #endregion
@@ -174,9 +178,9 @@ namespace Messaging.Buffer
             }
         }
 
-        public async Task SubscribeRequestAsync<TRequest>(Action<string, string> requestHandler) where TRequest : RequestBase
+        public async Task SubscribeRequestAsync<TRequest>(Action<string, TRequest> requestHandler) where TRequest : RequestBase
         {
-            var type = typeof(TRequest).Name;
+            var type = typeof(TRequest).FullName;
             var channel = $"Request:*:{type}"; // subscribe to TRequest
             try
             {
@@ -233,13 +237,13 @@ namespace Messaging.Buffer
         public async Task UnsubscribeRequestAsync<TRequest>() where TRequest : RequestBase
         {
             var type = typeof(TRequest);
-            var channel = $"Request:*:{type.Name}";
+            var channel = $"Request:*:{type.FullName}";
             try
             {
                 _logger.LogTrace("Unsuscribing channel {Channel}", channel);
                 await _redisCollection.UnsubscribeAsync(RedisChannel.Pattern(channel));
 
-                if (!ResponseDelegateCollection.TryRemove(type.Name, out Delegate handler))
+                if (!ResponseDelegateCollection.TryRemove(type.FullName, out Delegate handler))
                     throw new Exception("Could not remove OnResponse delegate from dictionnary.");
             }
             catch (Exception ex)
@@ -255,7 +259,7 @@ namespace Messaging.Buffer
             try
             {
                 _logger.LogTrace("Unsuscribing channel {Channel}", channel);
-                await _redisCollection.UnsubscribeAsync(RedisChannel.Pattern(channel)); 
+                await _redisCollection.UnsubscribeAsync(RedisChannel.Pattern(channel));
 
                 if (!ResponseDelegateCollection.TryRemove(correlationId, out Delegate handler))
                     throw new Exception("Could not remove OnResponse delegate from dictionnary.");

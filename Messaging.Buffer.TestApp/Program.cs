@@ -1,5 +1,6 @@
 ﻿using Messaging.Buffer.Service;
 using Messaging.Buffer.TestApp;
+using Messaging.Buffer.TestApp.Requests;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

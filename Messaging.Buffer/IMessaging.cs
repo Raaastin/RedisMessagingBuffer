@@ -47,7 +47,7 @@ namespace Messaging.Buffer
         /// Subscribe for specific request
         /// </summary>
         /// <param name="requestHandler">Function called on request received</param>
-        Task SubscribeRequestAsync<TRequest>(Action<string, string> requestHandler) where TRequest : RequestBase;
+        Task SubscribeRequestAsync<TRequest>(Action<string, TRequest> requestHandler) where TRequest : RequestBase;
 
         /// <summary>
         /// Unsubscribe for Requests

@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Reflection;
+using Messaging.Buffer.TestApp.Requests;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -72,18 +74,18 @@ namespace Messaging.Buffer.TestApp
             }
         }
 
-        private async void OnHelloWorldRequestReceived(string correlationId, string request)
+        private async void OnHelloWorldRequestReceived(string correlationId, HelloWorldRequest request)
         {
-            dynamic content = JsonConvert.DeserializeObject<HelloWorldRequest>(request);
+            _logger.LogTrace($"Method: {MethodBase.GetCurrentMethod().Name}");
             await _messaging.PublishResponseAsync(correlationId, new HelloWorldResponse(correlationId)
             {
                 InstanceResponse = $"Hello from {Environment.UserName}"
             });
         }
 
-        private async void OnTotalCountRequestReceived(string correlationId, string request)
+        private async void OnTotalCountRequestReceived(string correlationId, TotalCountRequest request)
         {
-            dynamic content = JsonConvert.DeserializeObject<TotalCountRequest>(request);
+            _logger.LogTrace($"Method: {MethodBase.GetCurrentMethod().Name}");
             await _messaging.PublishResponseAsync(correlationId, new TotalCountResponse(correlationId, personalCount));
         }
     }

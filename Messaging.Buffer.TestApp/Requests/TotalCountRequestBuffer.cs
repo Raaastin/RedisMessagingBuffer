@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Messaging.Buffer.Buffer;
 using Microsoft.Extensions.Logging;
 
-namespace Messaging.Buffer.TestApp
+namespace Messaging.Buffer.TestApp.Requests
 {
     public class TotalCountRequest : RequestBase
     {

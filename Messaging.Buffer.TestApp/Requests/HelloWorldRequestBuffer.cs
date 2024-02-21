@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
-using Messaging.Buffer.Buffer;
+﻿using Messaging.Buffer.Buffer;
 using Microsoft.Extensions.Logging;
 
-namespace Messaging.Buffer.TestApp
+namespace Messaging.Buffer.TestApp.Requests
 {
     public class HelloWorldRequest : RequestBase
     {
