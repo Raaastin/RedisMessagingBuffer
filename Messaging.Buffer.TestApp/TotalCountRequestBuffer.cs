@@ -25,9 +25,9 @@ namespace Messaging.Buffer.TestApp
     /// <summary>
     /// Return the total of COUNT of every instance + the initial COUNT provided in the request
     /// </summary>
-    public class TotalCoundRequestBuffer : RequestBufferBase<TotalCountRequest, TotalCountResponse>
+    public class TotalCountRequestBuffer : RequestBufferBase<TotalCountRequest, TotalCountResponse>
     {
-        public TotalCoundRequestBuffer(IMessaging messaging, TotalCountRequest request) : base(messaging, request)
+        public TotalCountRequestBuffer(IMessaging messaging, TotalCountRequest request) : base(messaging, request)
         {
         }
 

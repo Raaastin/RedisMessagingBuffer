@@ -20,7 +20,7 @@ public class Program
             // Register the service and any buffer
             .AddMessagingBuffer(Configuration, "Redis")
             .AddBuffer<HelloWorldRequestBuffer, HelloWorldRequest, HelloWorldResponse>()
-            .AddBuffer<TotalCoundRequestBuffer, TotalCountRequest, TotalCountResponse>()
+            .AddBuffer<TotalCountRequestBuffer, TotalCountRequest, TotalCountResponse>()
 
             .BuildServiceProvider();
 
