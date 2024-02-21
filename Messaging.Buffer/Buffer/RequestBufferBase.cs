@@ -1,4 +1,6 @@
 ﻿using System.Collections.Concurrent;
+using System.Threading.Tasks.Sources;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Messaging.Buffer.Buffer
@@ -12,6 +14,7 @@ namespace Messaging.Buffer.Buffer
     {
 
         #region Fields
+        protected ILogger<RequestBufferBase<TRequest, TResponse>> _logger { get; set; }
         /// <summary>
         /// Service base with subscribe and send methods
         /// </summary>
@@ -48,10 +51,11 @@ namespace Messaging.Buffer.Buffer
         /// <param name="value"></param>
         private void OnResponse(object sender, ReceivedEventArgs eventArgs)
         {
+            _logger.LogTrace("Response received {Channel} - {CorrelationId} - {MessageType}", eventArgs.Channel, eventArgs.CorrelationId, eventArgs.MessageType);
             var chargerCacheResponse = JsonConvert.DeserializeObject<TResponse>(eventArgs.Value);
             if (chargerCacheResponse.CorrelationId != CorrelationId)
             {
-                // Skip: The response received is not for this Buffer.                
+                _logger.LogWarning("Response received in wrong context Response: {Response}, Buffer: {Buffer}. Response is ignored.", eventArgs.CorrelationId, CorrelationId);
                 return;
             }
 
@@ -116,6 +120,7 @@ namespace Messaging.Buffer.Buffer
             await Task.WhenAny(Task.WhenAll(TcsList.Select(x => x.Value.Task)), taskDelay);
             if (taskDelay.IsCompleted)
             {
+                _logger.LogTrace("Buffer {CorrelationId} timedout after {delay} ms.", CorrelationId, timeoutMs);
                 result = false;
                 foreach (var tcs in TcsList.Select(x => x.Value))
                     tcs.TrySetCanceled();
@@ -128,11 +133,16 @@ namespace Messaging.Buffer.Buffer
         /// </summary>
         protected abstract TResponse Aggregate();
 
-        public RequestBufferBase(IMessaging messaging, TRequest request)
+        #region Ctor
+
+        public RequestBufferBase(IMessaging messaging, TRequest request, ILogger<RequestBufferBase<TRequest, TResponse>> logger)
         {
             _messaging = messaging;
+            _logger = logger;
             Request = request;
             CorrelationId = Guid.NewGuid().ToString();
         }
+
+        #endregion
     }
 }

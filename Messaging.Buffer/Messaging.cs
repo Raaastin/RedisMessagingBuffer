@@ -28,6 +28,7 @@ namespace Messaging.Buffer
 
         private void OnRequest(RedisChannel channel, RedisValue value)
         {
+            _logger.LogTrace("Request Received from {Channel}", channel);
             var channelPath = channel.ToString().Split(":");
 
             ReceivedEventArgs eventArgs = new ReceivedEventArgs()
@@ -52,6 +53,7 @@ namespace Messaging.Buffer
 
         private void OnResponse(RedisChannel channel, RedisValue value)
         {
+            _logger.LogTrace("Response Received from {Channel}", channel);
             var channelPath = channel.ToString().Split(":");
 
             ReceivedEventArgs eventArgs = new ReceivedEventArgs()
@@ -68,7 +70,14 @@ namespace Messaging.Buffer
         {
             if (ResponseDelegateCollection.TryGetValue(e.CorrelationId, out Delegate handler))
             {
-                handler.DynamicInvoke(this, e);
+                try
+                {
+                    handler.DynamicInvoke(this, e);
+                }
+                catch(Exception ex)
+                {
+                    _logger.LogError(ex, "Response could not be handled. Error when calling delegate.");
+                }
             }
         }
 
@@ -86,11 +95,12 @@ namespace Messaging.Buffer
 
             try
             {
+                _logger.LogTrace("Publishing request {Request} - {CorrelationId} to channel {Channel}", type, correlationId, channel);
                 received = await _redisCollection.GetSubscriber()?.PublishAsync(RedisChannel.Pattern(channel), requestJson);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Could not Publish request {Request} to channel {Channel}", request.GetType().Name, channel);
+                _logger.LogError(ex, "Could not Publish {Request} to channel {Channel}", request.GetType().Name, channel);
             }
 
             if (received == 0)
@@ -108,6 +118,7 @@ namespace Messaging.Buffer
 
             try
             {
+                _logger.LogTrace("Publishing response with id {CorrelationId} to channel {Channel}", correlationId, channel);
                 received = await _redisCollection.GetSubscriber().PublishAsync(RedisChannel.Pattern(channel), responseJson);
             }
             catch (Exception ex)
@@ -132,6 +143,8 @@ namespace Messaging.Buffer
             try
             {
                 RequestReceived += requestHandler;
+
+                _logger.LogTrace("Subscribing to {Channel}", channel);
                 await _redisCollection.SubscribeAsync(RedisChannel.Pattern(channel), OnRequest); //All request
             }
             catch (Exception ex)
@@ -143,12 +156,13 @@ namespace Messaging.Buffer
         /// <inheritdoc/>
         public async Task SubscribeResponseAsync(string correlationId, Action<object, ReceivedEventArgs> responseHandler)
         {
-            var channel = $"Response:{correlationId}:*";
+            var channel = $"Response:{correlationId}";
             try
             {
-                if (!ResponseDelegateCollection.TryAdd(correlationId, OnResponse))
+                if (!ResponseDelegateCollection.TryAdd(correlationId, responseHandler))
                     throw new Exception($"Request with correlationId: {correlationId} could not provide OnResponse delegate. Request canceled.");
 
+                _logger.LogTrace("Subscribing to {Channel}", channel);
                 await _redisCollection.SubscribeAsync(RedisChannel.Pattern(channel), OnResponse); //All request
             }
             catch (Exception ex)
@@ -167,6 +181,7 @@ namespace Messaging.Buffer
             var channel = $"Request:*:*";
             try
             {
+                _logger.LogTrace("Unsuscribing channel {Channel}", channel);
                 await _redisCollection.UnsubscribeAsync(RedisChannel.Pattern(channel));
             }
             catch (Exception ex)
@@ -178,13 +193,14 @@ namespace Messaging.Buffer
         /// <inheritdoc/>
         public async Task UnsubscribeResponseAsync(string correlationId)
         {
-            var channel = $"Response:{correlationId}:*";
+            var channel = $"Response:{correlationId}";
             try
             {
+                _logger.LogTrace("Unsuscribing channel {Channel}", channel);
                 await _redisCollection.UnsubscribeAsync(RedisChannel.Pattern(channel)); //All request
 
                 if (!ResponseDelegateCollection.TryRemove(correlationId, out Delegate handler))
-                    throw new Exception("Could not remove OnResponse delegate from dictionnary. Crash the instance => no memory leak :)");
+                    throw new Exception("Could not remove OnResponse delegate from dictionnary.");
             }
             catch (Exception ex)
             {

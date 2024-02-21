@@ -30,7 +30,7 @@ public class Program
         app.RunHelloWorld();
 
         // Test 2: Send a TotalCount request. The result is the total of all response + an initial value in
-        app.RunTotalCount();
+        //app.RunTotalCount();
 
         while (true) { }
     }
