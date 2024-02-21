@@ -178,6 +178,7 @@ namespace Messaging.Buffer
             }
         }
 
+        /// <inheritdoc/>
         public async Task SubscribeRequestAsync<TRequest>(Action<string, TRequest> requestHandler) where TRequest : RequestBase
         {
             var type = typeof(TRequest).FullName;
