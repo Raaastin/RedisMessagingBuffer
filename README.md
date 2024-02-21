@@ -15,13 +15,13 @@ Using Redis Messaging Buffer, any instance will handle the http request, then as
 User wants the resource A, but unfortunately, its http request is handled by an instance that does not know A.
 
 Pic 1: User requests for the resource A, Instance 1 handles the request and publish a UserWantsA message.
-![Request](https://github.com/Raaastin/RedisMessagingBuffer/assets/160628718/ef3cfb78-20a2-4b3d-a2b6-e80f5046e7cc)
+![Request](https://github.com/Raaastin/RedisMessagingBuffer/assets/160628718/2fa9de0e-6d3b-4f38-8cc5-bae4f36e4df6)
 
 Pic 2: All instances are reading UserWantsA message and respond by publishing their answer.
-![request2](https://github.com/Raaastin/RedisMessagingBuffer/assets/160628718/e7bd51d9-7570-45b6-9543-164225988dc8)
+![request2](https://github.com/Raaastin/RedisMessagingBuffer/assets/160628718/c2e2e893-ff8f-4ffd-9be9-0fde5e5409ee)
 
 Pic 3: Instance1 is reading all the responses and aggregate all of them into a single response for the user
-![Request3](https://github.com/Raaastin/RedisMessagingBuffer/assets/160628718/54822aad-5b2b-49be-bf3c-de6fe0f5b706)
+![Request3](https://github.com/Raaastin/RedisMessagingBuffer/assets/160628718/79f95499-c56c-4310-b5a7-8025a401f4ac)
 
 MessagingBuffer provides the way to publish and subscribe automatically to the correct channels.
 
