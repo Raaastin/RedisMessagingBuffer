@@ -40,7 +40,7 @@ namespace Messaging.Buffer.TestApp
         {
             _logger.LogTrace("Performing TotalCount process");
 
-            var buffer = _serviceProvider.GetRequiredService<TotalCoundRequestBuffer>();
+            var buffer = _serviceProvider.GetRequiredService<TotalCountRequestBuffer>();
             buffer.Request.InitialCount = 100;
             var response = await buffer.SendRequestAsync();
 
