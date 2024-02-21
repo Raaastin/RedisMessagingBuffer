@@ -12,7 +12,7 @@ namespace Messaging.Buffer
 
 
         /// <summary>
-        /// Delegate collection for requests. A delegate is added for the lifetime of a buffer
+        /// Delegate collection for requests. A delegate is added when a request type is subscribed
         /// </summary>
         ConcurrentDictionary<string, Delegate> RequestDelegateCollection { get; set; }
 
