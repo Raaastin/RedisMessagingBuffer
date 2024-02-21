@@ -49,11 +49,18 @@ MessagingBuffer can handle multiple redis connexion string. (note: When more tha
 ### Step 4: Register Buffer
 ![image](https://github.com/Raaastin/RedisMessagingBuffer/assets/160628718/a9e59ebd-931e-4b8c-b558-8e827b0346f0)
 
-### Step 5: Subscribe your application to Redis
+### Step 5: Subscribe to some redis Channel and register message handlers
 ![image](https://github.com/Raaastin/RedisMessagingBuffer/assets/160628718/5c28497e-1651-4aa0-87ea-f7f06f38765d)
 ![image](https://github.com/Raaastin/RedisMessagingBuffer/assets/160628718/6fa79167-be8a-43d4-8bcf-72323896f7fe)
 
-### Step 6: Get a Buffer through the service provider, then send the request
+### Step 6: Get a Buffer through the service provider, then send the request.
 ![image](https://github.com/Raaastin/RedisMessagingBuffer/assets/160628718/ca200b14-bd24-46e7-880d-67a84ed9e842)
 
 In this example, response contains the result of the Aggregate method from the buffer.
+
+## Pub/Sub Details
+- When using Messaging.Buffer, all of your application instances will subscribe to pub/sub channel "Request:\*:\*".
+- (optional) it's possible to perform several independant subsciption instead (ex: "Request:\*:RequestA", "Request:\*:\RequestB", etc)
+- Each time a buffer is created, on sending the request, the buffer will subscribe to channel "Response:\[your.buffer.unique.id\]" in order to handle all incoming responses
+- Each instance of the application, on request received, shall handle the request and respond to channel "Response:\[your.buffer.unique.id\]"
+- Once all responses are received, or after a time out delay, the channel "Response:\[your.buffer.unique.id\]" is unsubscribed by the buffer, the responses are aggregated and returned.
