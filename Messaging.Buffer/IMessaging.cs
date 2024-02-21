@@ -35,13 +35,13 @@ namespace Messaging.Buffer
         /// Subscribe for Requests
         /// </summary>
         /// <param name="OnRequest">Function called on request received</param>
-        Task SubscribeRequestAsync(EventHandler<ReceivedEventArgs> OnRequest);
+        Task SubscribeAnyRequestAsync(EventHandler<ReceivedEventArgs> OnRequest);
 
         /// <summary>
         /// Unsubscribe for Requests
         /// </summary>
         /// <param name="OnRequest">Function called on request received</param>
-        Task UnsubscribeRequestAsync();
+        Task UnsubscribeAnyRequestAsync();
 
         /// <summary>
         /// Subscribe for response. 

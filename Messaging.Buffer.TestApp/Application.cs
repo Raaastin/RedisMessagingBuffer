@@ -17,7 +17,7 @@ namespace Messaging.Buffer.TestApp
             _logger = logger;
             _messaging = messaging;
             _serviceProvider = serviceProvider;
-            _messaging.SubscribeRequestAsync(OnRequest);
+            _messaging.SubscribeAnyRequestAsync(OnRequest);
         }
 
         /// <summary>

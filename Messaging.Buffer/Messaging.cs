@@ -137,7 +137,7 @@ namespace Messaging.Buffer
         #region Subscribe/Unsubscribe
 
         /// <inheritdoc/>
-        public async Task SubscribeRequestAsync(EventHandler<ReceivedEventArgs> requestHandler)
+        public async Task SubscribeAnyRequestAsync(EventHandler<ReceivedEventArgs> requestHandler)
         {
             var channel = $"Request:*:*"; // subscribe to all possible request
             try
@@ -176,7 +176,7 @@ namespace Messaging.Buffer
         #region Unsubscribe
 
         /// <inheritdoc/>
-        public async Task UnsubscribeRequestAsync()
+        public async Task UnsubscribeAnyRequestAsync()
         {
             var channel = $"Request:*:*";
             try
