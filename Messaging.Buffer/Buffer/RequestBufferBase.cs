@@ -51,7 +51,7 @@ namespace Messaging.Buffer.Buffer
         /// <param name="value"></param>
         private void OnResponse(object sender, ReceivedEventArgs eventArgs)
         {
-            _logger.LogTrace("Response received {Channel} - {CorrelationId} - {MessageType}", eventArgs.Channel, eventArgs.CorrelationId, eventArgs.MessageType);
+            _logger.LogTrace("Response received {Channel} - {CorrelationId}", eventArgs.Channel, eventArgs.CorrelationId);
             var chargerCacheResponse = JsonConvert.DeserializeObject<TResponse>(eventArgs.Value);
             if (chargerCacheResponse.CorrelationId != CorrelationId)
             {

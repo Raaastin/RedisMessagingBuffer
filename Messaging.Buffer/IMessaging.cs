@@ -10,8 +10,14 @@ namespace Messaging.Buffer
         /// </summary>
         event EventHandler<ReceivedEventArgs> RequestReceived;
 
+
         /// <summary>
-        /// Delegate collection. A delegate is added for the lifetime of a buffer
+        /// Delegate collection for requests. A delegate is added when a request type is subscribed
+        /// </summary>
+        ConcurrentDictionary<string, Delegate> RequestDelegateCollection { get; set; }
+
+        /// <summary>
+        /// Delegate collection for responses. A delegate is added for the lifetime of a buffer
         /// </summary>
         ConcurrentDictionary<string, Delegate> ResponseDelegateCollection { get; set; }
 
@@ -35,13 +41,24 @@ namespace Messaging.Buffer
         /// Subscribe for Requests
         /// </summary>
         /// <param name="OnRequest">Function called on request received</param>
-        Task SubscribeRequestAsync(EventHandler<ReceivedEventArgs> OnRequest);
+        Task SubscribeAnyRequestAsync(EventHandler<ReceivedEventArgs> requestHandler);
+
+        /// <summary>
+        /// Subscribe for specific request
+        /// </summary>
+        /// <param name="requestHandler">Function called on request received</param>
+        Task SubscribeRequestAsync<TRequest>(Action<string, TRequest> requestHandler) where TRequest : RequestBase;
 
         /// <summary>
         /// Unsubscribe for Requests
         /// </summary>
         /// <param name="OnRequest">Function called on request received</param>
-        Task UnsubscribeRequestAsync();
+        Task UnsubscribeAnyRequestAsync();
+
+        /// <summary>
+        /// Unsubscribe specific request
+        /// </summary>
+        Task UnsubscribeRequestAsync<TRequest>() where TRequest : RequestBase;
 
         /// <summary>
         /// Subscribe for response. 
