@@ -27,10 +27,10 @@ public class Program
         var app = serviceProvider.GetService<Application>();
 
         // Test 1: Send a Hello World request. Each instance respond with Hello World. Initial request display a list of all responses
-        app.RunHelloWorld();
+        await app.RunHelloWorld();
 
-        // Test 2: Send a TotalCount request. The result is the total of all response + an initial value in
-        app.RunTotalCount();
+        // Test 2: Send a TotalCount request. The result is the total of all response + an initial value in request
+        await app.RunTotalCount();
 
         await Task.Delay(300000); // close in 5 min
     }

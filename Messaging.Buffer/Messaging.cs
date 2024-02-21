@@ -1,9 +1,12 @@
 ﻿using System.Collections.Concurrent;
+using System.Reflection;
+using System.Text.Json.Nodes;
 using Messaging.Buffer.Buffer;
 using Messaging.Buffer.Redis;
 using Messaging.Buffer.Service;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using StackExchange.Redis;
 
 namespace Messaging.Buffer
@@ -15,12 +18,14 @@ namespace Messaging.Buffer
         private readonly ILogger<IMessaging> _logger;
 
         public event EventHandler<ReceivedEventArgs> RequestReceived;
+        public ConcurrentDictionary<string, Delegate> RequestDelegateCollection { get; set; }
         public ConcurrentDictionary<string, Delegate> ResponseDelegateCollection { get; set; }
 
         public Messaging(ILogger<IMessaging> logger, IRedisCollection redisCollection)
         {
             _redisCollection = redisCollection;
             _logger = logger;
+            RequestDelegateCollection = new();
             ResponseDelegateCollection = new();
         }
 
@@ -44,10 +49,26 @@ namespace Messaging.Buffer
 
         protected virtual void TriggerRequestReceived(ReceivedEventArgs e)
         {
-            EventHandler<ReceivedEventArgs> handler = RequestReceived;
-            if (handler != null)
+            if (RequestDelegateCollection.TryGetValue(e.MessageType, out Delegate handler))
             {
-                handler(this, e);
+                // Case: dedicated handler
+                try
+                {
+                    handler.DynamicInvoke(e.CorrelationId, e.Value);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Response could not be handled. Error when calling delegate.");
+                }
+            }
+            else
+            {
+                // case: generic handler (deprecated soon)
+                EventHandler<ReceivedEventArgs> handler2 = RequestReceived;
+                if (handler2 != null)
+                {
+                    handler2(this, e);
+                }
             }
         }
 
@@ -74,7 +95,7 @@ namespace Messaging.Buffer
                 {
                     handler.DynamicInvoke(this, e);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _logger.LogError(ex, "Response could not be handled. Error when calling delegate.");
                 }
@@ -100,7 +121,7 @@ namespace Messaging.Buffer
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Could not Publish {Request} to channel {Channel}", request.GetType().Name, channel);
+                _logger.LogError(ex, "Could not Publish {Request} to channel {Channel}", type, channel);
             }
 
             if (received == 0)
@@ -153,6 +174,24 @@ namespace Messaging.Buffer
             }
         }
 
+        public async Task SubscribeRequestAsync<TRequest>(Action<string, string> requestHandler) where TRequest : RequestBase
+        {
+            var type = typeof(TRequest).Name;
+            var channel = $"Request:*:{type}"; // subscribe to TRequest
+            try
+            {
+                if (!RequestDelegateCollection.TryAdd(type, requestHandler))
+                    throw new Exception($"Could not add request handler to collection. Subscription canceled.");
+
+                _logger.LogTrace("Subscribing to {Channel}", channel);
+                await _redisCollection.SubscribeAsync(RedisChannel.Pattern(channel), OnRequest); //All request
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Could not Subscribe to channel {Channel}", channel);
+            }
+        }
+
         /// <inheritdoc/>
         public async Task SubscribeResponseAsync(string correlationId, Action<object, ReceivedEventArgs> responseHandler)
         {
@@ -160,7 +199,7 @@ namespace Messaging.Buffer
             try
             {
                 if (!ResponseDelegateCollection.TryAdd(correlationId, responseHandler))
-                    throw new Exception($"Request with correlationId: {correlationId} could not provide OnResponse delegate. Request canceled.");
+                    throw new Exception($"Request with correlationId: {correlationId} could not provide OnResponse delegate. Subscription canceled.");
 
                 _logger.LogTrace("Subscribing to {Channel}", channel);
                 await _redisCollection.SubscribeAsync(RedisChannel.Pattern(channel), OnResponse); //All request
@@ -191,13 +230,32 @@ namespace Messaging.Buffer
         }
 
         /// <inheritdoc/>
+        public async Task UnsubscribeRequestAsync<TRequest>() where TRequest : RequestBase
+        {
+            var type = typeof(TRequest);
+            var channel = $"Request:*:{type.Name}";
+            try
+            {
+                _logger.LogTrace("Unsuscribing channel {Channel}", channel);
+                await _redisCollection.UnsubscribeAsync(RedisChannel.Pattern(channel));
+
+                if (!ResponseDelegateCollection.TryRemove(type.Name, out Delegate handler))
+                    throw new Exception("Could not remove OnResponse delegate from dictionnary.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Could not Unsubscribe to channel {Channel}", channel);
+            }
+        }
+
+        /// <inheritdoc/>
         public async Task UnsubscribeResponseAsync(string correlationId)
         {
             var channel = $"Response:{correlationId}";
             try
             {
                 _logger.LogTrace("Unsuscribing channel {Channel}", channel);
-                await _redisCollection.UnsubscribeAsync(RedisChannel.Pattern(channel)); //All request
+                await _redisCollection.UnsubscribeAsync(RedisChannel.Pattern(channel)); 
 
                 if (!ResponseDelegateCollection.TryRemove(correlationId, out Delegate handler))
                     throw new Exception("Could not remove OnResponse delegate from dictionnary.");
