@@ -143,7 +143,7 @@ namespace Messaging.Buffer
         /// <inheritdoc/>
         public async Task SubscribeResponseAsync(string correlationId, Action<object, ReceivedEventArgs> responseHandler)
         {
-            var channel = $"Response:{correlationId}";
+            var channel = $"Response:{correlationId}:*";
             try
             {
                 if (!ResponseDelegateCollection.TryAdd(correlationId, OnResponse))
@@ -164,7 +164,7 @@ namespace Messaging.Buffer
         /// <inheritdoc/>
         public async Task UnsubscribeRequestAsync()
         {
-            var channel = $"Request:*";
+            var channel = $"Request:*:*";
             try
             {
                 await _redisCollection.UnsubscribeAsync(RedisChannel.Pattern(channel));
