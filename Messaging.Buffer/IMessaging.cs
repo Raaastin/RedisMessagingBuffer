@@ -56,7 +56,7 @@ namespace Messaging.Buffer
         Task UnsubscribeAnyRequestAsync();
 
         /// <summary>
-        /// Unsubscribe specifi request
+        /// Unsubscribe specific request
         /// </summary>
         Task UnsubscribeRequestAsync<TRequest>() where TRequest : RequestBase;
 
