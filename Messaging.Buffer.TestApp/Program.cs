@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         IConfiguration Configuration = new ConfigurationBuilder()
        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -30,8 +30,8 @@ public class Program
         app.RunHelloWorld();
 
         // Test 2: Send a TotalCount request. The result is the total of all response + an initial value in
-        //app.RunTotalCount();
+        app.RunTotalCount();
 
-        while (true) { }
+        await Task.Delay(300000); // close in 5 min
     }
 }
