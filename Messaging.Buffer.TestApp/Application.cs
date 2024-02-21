@@ -76,7 +76,7 @@ namespace Messaging.Buffer.TestApp
 
         private async void OnHelloWorldRequestReceived(string correlationId, HelloWorldRequest request)
         {
-            _logger.LogTrace($"Method: {MethodBase.GetCurrentMethod().Name}");
+            _logger.LogTrace($"Method: {nameof(OnHelloWorldRequestReceived)}");
             await _messaging.PublishResponseAsync(correlationId, new HelloWorldResponse(correlationId)
             {
                 InstanceResponse = $"Hello from {Environment.UserName}"
@@ -85,7 +85,7 @@ namespace Messaging.Buffer.TestApp
 
         private async void OnTotalCountRequestReceived(string correlationId, TotalCountRequest request)
         {
-            _logger.LogTrace($"Method: {MethodBase.GetCurrentMethod().Name}");
+            _logger.LogTrace($"Method: {nameof(OnTotalCountRequestReceived)}");
             await _messaging.PublishResponseAsync(correlationId, new TotalCountResponse(correlationId, personalCount));
         }
     }
