@@ -27,6 +27,6 @@ jobs:
     - name: Pack
       run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
     - name: Push
-      run: dotnet nuget push Redis.Messaging.Buffer.${VERSION}.nupkg --source https://nuget.pkg.github.com/raaastin/index.json --api-key ${GITHUB_TOKEN}
+      run: dotnet nuget push Messaging.Buffer.${VERSION}.nupkg --source https://nuget.pkg.github.com/raaastin/index.json --api-key ${GITHUB_TOKEN}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
