@@ -6,9 +6,12 @@ It provides a simple implementation of "buffer" class that allows a single sent 
 A buffer works by publishing a request to a Redis server. Any subscriber shall handle the request, then publish their response. All responses are published through a temporary specific channel which is subscribed only by the buffer.
 
 ## Use case: 
-When you have an application that runs on several instances for scaling purpose, and each of these have their own ressouces
+When you have an application that runs on several instances for scaling purpose, and each of these have their own ressouces.
+
 As a user, when requesting the application (ex: through an http request), you don't know which instance is holding your requested ressource. You don't know also which instance will be handling your http request.
+
 Whith no multi instance system, your request will either return your result if your are lucky, or a resource not found response when the request is handled by the 'wrong' instance. 
+
 Using Redis Messaging Buffer, any instance will handle the http request, then ask for other instances for the resource, then respond the http request with the result.
 
 ### Use case example: 
