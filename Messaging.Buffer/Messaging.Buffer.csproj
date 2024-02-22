@@ -7,6 +7,17 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Redis.Messaging.Buffer</Title>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <EnablePackageValidation>False</EnablePackageValidation>	
+  </PropertyGroup>
+  
+  <PropertyGroup>
+	<Authors>Alexandre Chastaing</Authors>
+    <Description>Simple publish/subscribe implementation that allow one publisher to wait for multiple response from the subscribers. Main purpose is to facilitate communication between multi instances of a same application.</Description>
+    <PackageTags>Redis, library, publish, subscribe, buffer, messaging</PackageTags>	
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>

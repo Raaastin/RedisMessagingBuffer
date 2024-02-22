@@ -3,6 +3,9 @@ using Messaging.Buffer.Buffer;
 
 namespace Messaging.Buffer
 {
+    /// <summary>
+    /// Messaging interface allowing to publish and subscribe to pub/sub service
+    /// </summary>
     public interface IMessaging
     {
         /// <summary>

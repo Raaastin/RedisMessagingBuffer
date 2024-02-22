@@ -12,15 +12,24 @@ using StackExchange.Redis;
 namespace Messaging.Buffer
 {
 
+    /// <inheritdoc/>
     public class Messaging : IMessaging
     {
         private readonly IRedisCollection _redisCollection;
         private readonly ILogger<IMessaging> _logger;
 
+        /// <inheritdoc/>
         public event EventHandler<ReceivedEventArgs> RequestReceived;
+        /// <inheritdoc/>
         public ConcurrentDictionary<string, Delegate> RequestDelegateCollection { get; set; }
+        /// <inheritdoc/>
         public ConcurrentDictionary<string, Delegate> ResponseDelegateCollection { get; set; }
 
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="redisCollection"></param>
         public Messaging(ILogger<IMessaging> logger, IRedisCollection redisCollection)
         {
             _redisCollection = redisCollection;
@@ -31,6 +40,11 @@ namespace Messaging.Buffer
 
         #region Events
 
+        /// <summary>
+        /// Method fired when a request is received
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="value"></param>
         private void OnRequest(RedisChannel channel, RedisValue value)
         {
             _logger.LogTrace("Request Received from {Channel}", channel);
@@ -47,6 +61,10 @@ namespace Messaging.Buffer
             TriggerRequestReceived(eventArgs);
         }
 
+        /// <summary>
+        /// Fire delegate or event
+        /// </summary>
+        /// <param name="e"></param>
         protected virtual void TriggerRequestReceived(ReceivedEventArgs e)
         {
             if (RequestDelegateCollection.TryGetValue(e.MessageType, out Delegate handler))
@@ -76,6 +94,11 @@ namespace Messaging.Buffer
             }
         }
 
+        /// <summary>
+        /// Method fired when a response is received
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="value"></param>
         private void OnResponse(RedisChannel channel, RedisValue value)
         {
             _logger.LogTrace("Response Received from {Channel}", channel);
@@ -91,6 +114,10 @@ namespace Messaging.Buffer
             TriggerResponseReceived(eventArgs);
         }
 
+        /// <summary>
+        /// Fire delegate
+        /// </summary>
+        /// <param name="e"></param>
         protected virtual void TriggerResponseReceived(ReceivedEventArgs e)
         {
             if (ResponseDelegateCollection.TryGetValue(e.CorrelationId, out Delegate handler))
