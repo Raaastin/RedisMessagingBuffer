@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messaging.Buffer", "Messaging.Buffer\Messaging.Buffer.csproj", "{7186FE64-DD1B-48F7-9943-858A108904CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Messaging.Buffer", "Messaging.Buffer\Messaging.Buffer.csproj", "{7186FE64-DD1B-48F7-9943-858A108904CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messaging.Buffer.TestApp", "Messaging.Buffer.TestApp\Messaging.Buffer.TestApp.csproj", "{ABF2E07C-13A0-4B28-B21B-E64F0245F623}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Messaging.Buffer.TestApp", "Messaging.Buffer.TestApp\Messaging.Buffer.TestApp.csproj", "{ABF2E07C-13A0-4B28-B21B-E64F0245F623}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messaging.Buffer.Test", "Messaging.Buffer.Test\Messaging.Buffer.Test.csproj", "{E2782CFF-3935-4D2A-80F8-7C0E5F066F69}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{ABF2E07C-13A0-4B28-B21B-E64F0245F623}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABF2E07C-13A0-4B28-B21B-E64F0245F623}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ABF2E07C-13A0-4B28-B21B-E64F0245F623}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2782CFF-3935-4D2A-80F8-7C0E5F066F69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2782CFF-3935-4D2A-80F8-7C0E5F066F69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2782CFF-3935-4D2A-80F8-7C0E5F066F69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2782CFF-3935-4D2A-80F8-7C0E5F066F69}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Nodes;
 using Messaging.Buffer.Buffer;
 using Messaging.Buffer.Redis;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 
+[assembly: InternalsVisibleTo("Messaging.Buffer.Test")]
 namespace Messaging.Buffer
 {
 
@@ -38,6 +40,22 @@ namespace Messaging.Buffer
             ResponseDelegateCollection = new();
         }
 
+        private static Type ByName(string name)
+        {
+            return
+                AppDomain.CurrentDomain.GetAssemblies()
+                    .Reverse()
+                    .Select(assembly => assembly.GetType(name))
+                    .FirstOrDefault(t => t != null)
+                // Safely delete the following part
+                // if you do not want fall back to first partial result
+                ??
+                AppDomain.CurrentDomain.GetAssemblies()
+                    .Reverse()
+                    .SelectMany(assembly => assembly.GetTypes())
+                    .FirstOrDefault(t => t.Name.Contains(name));
+        }
+
         #region Events
 
         /// <summary>
@@ -45,7 +63,7 @@ namespace Messaging.Buffer
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="value"></param>
-        private void OnRequest(RedisChannel channel, RedisValue value)
+        internal void OnRequest(RedisChannel channel, RedisValue value)
         {
             _logger.LogTrace("Request Received from {Channel}", channel);
             var channelPath = channel.ToString().Split(":");
@@ -72,9 +90,9 @@ namespace Messaging.Buffer
                 // Case: dedicated handler
                 try
                 {
-                    var assembly = Assembly.GetEntryAssembly();
-                    var name = $"{e.MessageType}, {assembly.FullName}";
-                    var type = Type.GetType(name);
+                    //var assembly = Assembly.GetEntryAssembly();
+                    //var name = $"{e.MessageType}, {assembly.FullName}";
+                    var type = ByName(e.MessageType);
                     var payload = JsonConvert.DeserializeObject(e.Value, type);
                     handler.DynamicInvoke(e.CorrelationId, payload);
                 }
