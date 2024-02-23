@@ -14,22 +14,11 @@ using Xunit.Sdk;
 
 namespace Messaging.Buffer.Test.MessagingTest
 {
-    public class TestRequest() : RequestBase
+    public class OnRequest_Should : MessagingTestBase
     {
-        public string key { get; set; } = "value";
-    }
-
-    public class OnRequest_Should
-    {
-        private Messaging _service;
-        private Mock<IRedisCollection> _redisCollectionMock;
-        private Mock<ILogger<Messaging>> _loggerMock;
-
-        public OnRequest_Should()
+        public OnRequest_Should() : base()
         {
-            _loggerMock = new();
-            _redisCollectionMock = new();
-            _service = new Messaging(_loggerMock.Object, _redisCollectionMock.Object);
+
         }
 
         [Fact]
@@ -76,6 +65,52 @@ namespace Messaging.Buffer.Test.MessagingTest
             _loggerMock.Verify(x => x.Log(LogLevel.Error,
                         It.IsAny<EventId>(),
                         It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Request could not be handled. Error when calling delegate.")),
+                        It.IsAny<Exception>(),
+                        It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)), Times.Once);
+            Assert.False(handlerInvoked);
+        }
+
+        [Fact]
+        public void FireRequestEvent_WhenNoDedicatedDelegate()
+        {
+            // Arrange
+            var requestId = Guid.NewGuid().ToString();
+            var channel = $"Request:{requestId}:{nameof(TestRequest)}";
+            var value = new TestRequest().ToJson();
+
+            var handlerInvoked = false;
+            _service.RequestReceived += (object source, ReceivedEventArgs a) =>
+             {
+                 handlerInvoked = true;
+                 Assert.Equal(channel, a.Channel);
+                 Assert.Equal(requestId, a.CorrelationId);
+                 Assert.Equal(value, a.Value);
+             };
+
+            // Act
+            _service.OnRequest(RedisChannel.Pattern(channel), value);
+
+            // Assert
+            Assert.True(handlerInvoked);
+        }
+
+        [Fact]
+        public void LogError_WhenNoHandlerFound()
+        {
+            // Arrange
+            var requestId = Guid.NewGuid().ToString();
+            var channel = $"Request:{requestId}:{nameof(TestRequest)}";
+            var value = new TestRequest().ToJson();
+
+            var handlerInvoked = false;
+
+            // Act
+            _service.OnRequest(RedisChannel.Pattern(channel), value);
+
+            // Assert
+            _loggerMock.Verify(x => x.Log(LogLevel.Error,
+                        It.IsAny<EventId>(),
+                        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Request could not be find any handler associated to the request. Request not handled.")),
                         null,
                         It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)), Times.Once);
             Assert.False(handlerInvoked);

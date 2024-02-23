@@ -109,6 +109,10 @@ namespace Messaging.Buffer
                 {
                     handler2(this, e);
                 }
+                else
+                {
+                    _logger.LogError("Request could not be find any handler associated to the request. Request not handled.");
+                }
             }
         }
 
