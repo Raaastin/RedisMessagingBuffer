@@ -288,6 +288,8 @@ namespace Messaging.Buffer
             {
                 _logger.LogTrace("Unsuscribing channel {Channel}", channel);
                 await _redisCollection.UnsubscribeAsync(RedisChannel.Pattern(channel));
+
+                RequestReceived = null;
             }
             catch (Exception ex)
             {
