@@ -21,6 +21,16 @@ namespace Messaging.Buffer.Test.MessagingTest
 
         }
 
+        [Theory]
+        [InlineData("singlepath")]
+        [InlineData("double:path")]
+        [InlineData("This:is:four:path")]
+        public void ThrowException_WhenUnexpectedChannel(string channel)
+        {
+            // Act
+            Assert.Throws<Exception>(() => _service.OnRequest(RedisChannel.Pattern(channel), new TestRequest().ToJson()));
+        }
+
         [Fact]
         public void InvokeHandler_WhenFound()
         {

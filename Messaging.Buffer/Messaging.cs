@@ -40,6 +40,7 @@ namespace Messaging.Buffer
             ResponseDelegateCollection = new();
         }
 
+        // Todo: Test performance on this method
         private static Type ByName(string name)
         {
             return
@@ -67,6 +68,9 @@ namespace Messaging.Buffer
         {
             _logger.LogTrace("Request Received from {Channel}", channel);
             var channelPath = channel.ToString().Split(":");
+
+            if (channelPath.Length != 3)
+                throw new Exception($"Unexpected channel format from received message. Channel: {channel}");
 
             ReceivedEventArgs eventArgs = new ReceivedEventArgs()
             {
@@ -125,6 +129,9 @@ namespace Messaging.Buffer
         {
             _logger.LogTrace("Response Received from {Channel}", channel);
             var channelPath = channel.ToString().Split(":");
+
+            if (channelPath.Length != 2)
+                throw new Exception($"Unexpected channel format from received message. Channel: {channel}");
 
             ReceivedEventArgs eventArgs = new ReceivedEventArgs()
             {
