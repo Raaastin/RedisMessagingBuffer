@@ -307,7 +307,7 @@ namespace Messaging.Buffer
                 _logger.LogTrace("Unsuscribing channel {Channel}", channel);
                 await _redisCollection.UnsubscribeAsync(RedisChannel.Pattern(channel));
 
-                if (!ResponseDelegateCollection.TryRemove(type.FullName, out Delegate handler))
+                if (!RequestDelegateCollection.TryRemove(type.FullName, out Delegate handler))
                     throw new Exception("Could not remove OnResponse delegate from dictionnary.");
             }
             catch (Exception ex)
