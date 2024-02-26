@@ -108,14 +108,13 @@ namespace Messaging.Buffer
             else
             {
                 // case: generic handler (deprecated soon)
-                EventHandler<ReceivedEventArgs> handler2 = RequestReceived;
-                if (handler2 != null)
+                if (RequestReceived != null)
                 {
-                    handler2(this, e);
+                    RequestReceived(this, e);
                 }
                 else
                 {
-                    _logger.LogError("Request could not be find any handler associated to the request. Request not handled.");
+                    _logger.LogError("Could not find any handler associated to the request. Request not handled.");
                 }
             }
         }
@@ -254,6 +253,7 @@ namespace Messaging.Buffer
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Could not Subscribe to channel {Channel}", channel);
+                RequestDelegateCollection.TryRemove(type, out var temp);
             }
         }
 

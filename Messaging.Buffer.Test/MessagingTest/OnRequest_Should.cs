@@ -120,7 +120,7 @@ namespace Messaging.Buffer.Test.MessagingTest
             // Assert
             _loggerMock.Verify(x => x.Log(LogLevel.Error,
                         It.IsAny<EventId>(),
-                        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Request could not be find any handler associated to the request. Request not handled.")),
+                        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Could not find any handler associated to the request. Request not handled.")),
                         null,
                         It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)), Times.Once);
             Assert.False(handlerInvoked);
