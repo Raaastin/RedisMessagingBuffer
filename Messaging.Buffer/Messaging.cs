@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Nodes;
 using Messaging.Buffer.Buffer;
 using Messaging.Buffer.Redis;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 
+[assembly: InternalsVisibleTo("Messaging.Buffer.Test")]
 namespace Messaging.Buffer
 {
 
@@ -38,6 +40,23 @@ namespace Messaging.Buffer
             ResponseDelegateCollection = new();
         }
 
+        // Todo: Test performance on this method
+        private static Type ByName(string name)
+        {
+            return
+                AppDomain.CurrentDomain.GetAssemblies()
+                    .Reverse()
+                    .Select(assembly => assembly.GetType(name))
+                    .FirstOrDefault(t => t != null)
+                // Safely delete the following part
+                // if you do not want fall back to first partial result
+                ??
+                AppDomain.CurrentDomain.GetAssemblies()
+                    .Reverse()
+                    .SelectMany(assembly => assembly.GetTypes())
+                    .FirstOrDefault(t => t.Name.Contains(name));
+        }
+
         #region Events
 
         /// <summary>
@@ -45,10 +64,13 @@ namespace Messaging.Buffer
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="value"></param>
-        private void OnRequest(RedisChannel channel, RedisValue value)
+        internal void OnRequest(RedisChannel channel, RedisValue value)
         {
             _logger.LogTrace("Request Received from {Channel}", channel);
             var channelPath = channel.ToString().Split(":");
+
+            if (channelPath.Length != 3)
+                throw new Exception($"Unexpected channel format from received message. Channel: {channel}");
 
             ReceivedEventArgs eventArgs = new ReceivedEventArgs()
             {
@@ -72,9 +94,9 @@ namespace Messaging.Buffer
                 // Case: dedicated handler
                 try
                 {
-                    var assembly = Assembly.GetEntryAssembly();
-                    var name = $"{e.MessageType}, {assembly.FullName}";
-                    var type = Type.GetType(name);
+                    //var assembly = Assembly.GetEntryAssembly();
+                    //var name = $"{e.MessageType}, {assembly.FullName}";
+                    var type = ByName(e.MessageType);
                     var payload = JsonConvert.DeserializeObject(e.Value, type);
                     handler.DynamicInvoke(e.CorrelationId, payload);
                 }
@@ -86,10 +108,13 @@ namespace Messaging.Buffer
             else
             {
                 // case: generic handler (deprecated soon)
-                EventHandler<ReceivedEventArgs> handler2 = RequestReceived;
-                if (handler2 != null)
+                if (RequestReceived != null)
                 {
-                    handler2(this, e);
+                    RequestReceived(this, e);
+                }
+                else
+                {
+                    _logger.LogError("Could not find any handler associated to the request. Request not handled.");
                 }
             }
         }
@@ -99,10 +124,13 @@ namespace Messaging.Buffer
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="value"></param>
-        private void OnResponse(RedisChannel channel, RedisValue value)
+        internal void OnResponse(RedisChannel channel, RedisValue value)
         {
             _logger.LogTrace("Response Received from {Channel}", channel);
             var channelPath = channel.ToString().Split(":");
+
+            if (channelPath.Length != 2)
+                throw new Exception($"Unexpected channel format from received message. Channel: {channel}");
 
             ReceivedEventArgs eventArgs = new ReceivedEventArgs()
             {
@@ -130,6 +158,10 @@ namespace Messaging.Buffer
                 {
                     _logger.LogError(ex, "Response could not be handled. Error when calling delegate.");
                 }
+            }
+            else
+            {
+                _logger.LogError("No Respons delegate found. Could not handle the response.");
             }
         }
 
@@ -221,6 +253,7 @@ namespace Messaging.Buffer
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Could not Subscribe to channel {Channel}", channel);
+                RequestDelegateCollection.TryRemove(type, out var temp);
             }
         }
 
@@ -239,6 +272,7 @@ namespace Messaging.Buffer
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Could not Subscribe to channel {Channel}", channel);
+                ResponseDelegateCollection.TryRemove(correlationId, out var temp);
             }
         }
 
@@ -254,6 +288,8 @@ namespace Messaging.Buffer
             {
                 _logger.LogTrace("Unsuscribing channel {Channel}", channel);
                 await _redisCollection.UnsubscribeAsync(RedisChannel.Pattern(channel));
+
+                RequestReceived = null;
             }
             catch (Exception ex)
             {
@@ -271,7 +307,7 @@ namespace Messaging.Buffer
                 _logger.LogTrace("Unsuscribing channel {Channel}", channel);
                 await _redisCollection.UnsubscribeAsync(RedisChannel.Pattern(channel));
 
-                if (!ResponseDelegateCollection.TryRemove(type.FullName, out Delegate handler))
+                if (!RequestDelegateCollection.TryRemove(type.FullName, out Delegate handler))
                     throw new Exception("Could not remove OnResponse delegate from dictionnary.");
             }
             catch (Exception ex)
