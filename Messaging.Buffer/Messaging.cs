@@ -121,7 +121,7 @@ namespace Messaging.Buffer
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="value"></param>
-        private void OnResponse(RedisChannel channel, RedisValue value)
+        internal void OnResponse(RedisChannel channel, RedisValue value)
         {
             _logger.LogTrace("Response Received from {Channel}", channel);
             var channelPath = channel.ToString().Split(":");
@@ -152,6 +152,10 @@ namespace Messaging.Buffer
                 {
                     _logger.LogError(ex, "Response could not be handled. Error when calling delegate.");
                 }
+            }
+            else
+            {
+                _logger.LogError("No Respons delegate found. Could not handle the response.");
             }
         }
 
