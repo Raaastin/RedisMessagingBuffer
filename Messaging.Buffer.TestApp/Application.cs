@@ -23,9 +23,53 @@ namespace Messaging.Buffer.TestApp
             // (deprecated)
             //_messaging.SubscribeAnyRequestAsync(OnRequest);
 
-            _messaging.SubscribeRequestAsync<HelloWorldRequest>(OnHelloWorldRequestReceived);
-            _messaging.SubscribeRequestAsync<TotalCountRequest>(OnTotalCountRequestReceived);
+            //_messaging.SubscribeRequestAsync<HelloWorldRequest>(OnHelloWorldRequestReceived);
+            //_messaging.SubscribeRequestAsync<TotalCountRequest>(OnTotalCountRequestReceived);
         }
+
+        /// <summary>
+        /// Verify that a request can be freely subcribed/unsubcribed
+        /// </summary>
+        /// <returns></returns>
+        public async Task Test_Sub_Unsub_Resub()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                await _messaging.SubscribeRequestAsync<HelloWorldRequest>(OnHelloWorldRequestReceived);
+                await _messaging.UnsubscribeRequestAsync<HelloWorldRequest>();
+            }
+            await _messaging.SubscribeRequestAsync<HelloWorldRequest>(OnHelloWorldRequestReceived);
+
+            _messaging.RequestDelegateCollection.TryGetValue($"{typeof(HelloWorldRequest)}", out var temp);
+            if (temp == OnHelloWorldRequestReceived && _messaging.RequestDelegateCollection.Count == 1)
+                _logger.LogInformation($"{nameof(Test_Sub_Unsub_Resub)} : SUCCESS");
+            else
+                _logger.LogInformation($"{nameof(Test_Sub_Unsub_Resub)} : FAILURE");
+        }
+
+        /// <summary>
+        /// Verify that any can be freely subcribed/unsubcribed
+        /// </summary>
+        /// <returns></returns>
+        public async Task Test_Sub_Unsub_Resub2()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                await _messaging.SubscribeAnyRequestAsync((object e, ReceivedEventArgs args) => { test_count++; });
+                await _messaging.UnsubscribeAnyRequestAsync();
+            }
+            await _messaging.SubscribeAnyRequestAsync((object e, ReceivedEventArgs args) => { test_count++; });
+
+            var testBuffer = _serviceProvider.GetService<HelloWorldRequestBuffer>();
+            var result = await testBuffer.SendRequestAsync();
+
+            if (test_count == 1)
+                _logger.LogInformation($"{nameof(Test_Sub_Unsub_Resub2)} : SUCCESS");
+            else
+                _logger.LogInformation($"{nameof(Test_Sub_Unsub_Resub2)} : FAILURE");
+            test_count = 0;
+        }
+        private static int test_count = 0;
 
         /// <summary>
         /// Hello world example: No input in request
