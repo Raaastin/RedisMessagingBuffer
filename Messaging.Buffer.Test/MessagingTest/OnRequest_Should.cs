@@ -71,7 +71,7 @@ namespace Messaging.Buffer.Test.MessagingTest
         }
 
         [Fact]
-        public void FireRequestEvent_WhenNoDedicatedDelegate()
+        public void FireRequestReceived_WhenNoDedicatedDelegate()
         {
             // Arrange
             var requestId = Guid.NewGuid().ToString();
