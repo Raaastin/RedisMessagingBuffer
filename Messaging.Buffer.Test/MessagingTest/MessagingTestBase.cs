@@ -31,12 +31,15 @@ namespace Messaging.Buffer.Test.MessagingTest
     {
         protected Messaging _service;
         protected Mock<IRedisCollection> _redisCollectionMock;
+        protected Mock<ISubscriber> _subscriberMock;
         protected Mock<ILogger<Messaging>> _loggerMock;
 
         public MessagingTestBase()
         {
             _loggerMock = new();
             _redisCollectionMock = new();
+            _subscriberMock = new();
+            _redisCollectionMock.Setup(x => x.GetSubscriber()).Returns(_subscriberMock.Object);
             _service = new Messaging(_loggerMock.Object, _redisCollectionMock.Object);
         }
     }
