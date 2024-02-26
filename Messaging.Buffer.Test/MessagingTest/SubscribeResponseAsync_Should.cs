@@ -33,7 +33,7 @@ namespace Messaging.Buffer.Test.MessagingTest
         {
             // Arrange
             var requestId = Guid.NewGuid().ToString();
-            var channel = $"Response:*";
+            var channel = $"Response:{requestId}";
             _redisCollectionMock.Setup(x => x.SubscribeAsync(RedisChannel.Pattern(channel), _service.OnResponse)).Verifiable();
 
             // Act
@@ -42,7 +42,7 @@ namespace Messaging.Buffer.Test.MessagingTest
             // Assert
             Assert.Single(_service.ResponseDelegateCollection);
             Assert.Equal(TestResponseHandler, _service.ResponseDelegateCollection[$"{requestId}"]);
-            _subscriberMock.Verify();
+            _redisCollectionMock.Verify();
         }
 
         [Fact]
@@ -57,7 +57,7 @@ namespace Messaging.Buffer.Test.MessagingTest
             await _service.SubscribeResponseAsync(requestId, TestResponseHandler);
 
             // Assert
-            _subscriberMock.Verify();
+            _redisCollectionMock.Verify();
             Assert.Empty(_service.ResponseDelegateCollection);
 
             _loggerMock.Verify(x => x.Log(LogLevel.Error,

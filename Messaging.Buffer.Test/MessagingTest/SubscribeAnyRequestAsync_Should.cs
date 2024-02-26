@@ -33,7 +33,7 @@ namespace Messaging.Buffer.Test.MessagingTest
             await _service.SubscribeAnyRequestAsync((object sender, ReceivedEventArgs e) => {  });
 
             // Assert
-            _subscriberMock.Verify();
+            _redisCollectionMock.Verify();
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace Messaging.Buffer.Test.MessagingTest
             await _service.SubscribeAnyRequestAsync((object sender, ReceivedEventArgs e) => { });
 
             // Assert
-            _subscriberMock.Verify();
+            _redisCollectionMock.Verify();
 
             _loggerMock.Verify(x => x.Log(LogLevel.Error,
                         It.IsAny<EventId>(),

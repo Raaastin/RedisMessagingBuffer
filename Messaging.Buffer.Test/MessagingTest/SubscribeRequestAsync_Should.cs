@@ -41,7 +41,7 @@ namespace Messaging.Buffer.Test.MessagingTest
             // Assert
             Assert.Single(_service.RequestDelegateCollection);
             Assert.Equal(TestRequestHandler, _service.RequestDelegateCollection[$"{typeof(TestRequest)}"]);
-            _subscriberMock.Verify();
+            _redisCollectionMock.Verify();
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace Messaging.Buffer.Test.MessagingTest
             await _service.SubscribeRequestAsync<TestRequest>(TestRequestHandler);
 
             // Assert
-            _subscriberMock.Verify();
+            _redisCollectionMock.Verify();
             Assert.Empty(_service.RequestDelegateCollection);
 
             _loggerMock.Verify(x => x.Log(LogLevel.Error,
