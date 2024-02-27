@@ -39,7 +39,7 @@ namespace Messaging.Buffer.Service
             where TRequest : RequestBase
             where TResponse : ResponseBase
         {
-            services.AddScoped<TBuffer>();
+            services.AddTransient<TBuffer>();
             services.AddTransient<TRequest>();
             return services;
         }

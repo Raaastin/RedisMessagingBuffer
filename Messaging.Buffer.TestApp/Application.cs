@@ -46,11 +46,18 @@ namespace Messaging.Buffer.TestApp
             }
             await _messaging.SubscribeRequestAsync<HelloWorldRequest>(OnHelloWorldRequestReceived);
 
+            // Check sub result with 1 call
+            var testBuffer = _serviceProvider.GetService<HelloWorldRequestBuffer>();
+            testBuffer.timeoutMs = 1500;
+            var response = await testBuffer.SendRequestAsync();
+            _logger.LogInformation($"HelloWorld after multiple sub/unsub: " + response.InstanceResponse);
+
+            // Check single sub remaining
             _messaging.RequestDelegateCollection.TryGetValue($"{typeof(HelloWorldRequest)}", out var temp);
             if (temp == OnHelloWorldRequestReceived && _messaging.RequestDelegateCollection.Count == 1)
-                _logger.LogInformation($"{nameof(Test_Sub_Unsub_Resub)} : SUCCESS");
+                _logger.LogInformation($"{nameof(Test_Sub_Unsub_Resub)} Single sub: SUCCESS");
             else
-                _logger.LogInformation($"{nameof(Test_Sub_Unsub_Resub)} : FAILURE");
+                _logger.LogInformation($"{nameof(Test_Sub_Unsub_Resub)} Single sub: FAILURE");
 
             await _messaging.UnsubscribeRequestAsync<HelloWorldRequest>();
         }
@@ -70,12 +77,11 @@ namespace Messaging.Buffer.TestApp
 
             var testBuffer = _serviceProvider.GetService<HelloWorldRequestBuffer>();
             testBuffer.timeoutMs = 2000;
-            var result = await testBuffer.SendRequestAsync();
-
+            var response = await testBuffer.SendRequestAsync();
             if (test_count == 1)
-                _logger.LogInformation($"{nameof(Test_Sub_Unsub_Resub2)} : SUCCESS");
+                _logger.LogInformation($"{nameof(Test_Sub_Unsub_Resub2)} Single sub: SUCCESS");
             else
-                _logger.LogInformation($"{nameof(Test_Sub_Unsub_Resub2)} : FAILURE");
+                _logger.LogInformation($"{nameof(Test_Sub_Unsub_Resub2)} Single sub: FAILURE");
 
             test_count = 0;
             await _messaging.UnsubscribeAnyRequestAsync();

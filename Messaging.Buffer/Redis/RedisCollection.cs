@@ -64,23 +64,23 @@ namespace Messaging.Buffer.Redis
         /// <inheritdoc/>
         public async Task SubscribeAsync(RedisChannel channel, Action<RedisChannel, RedisValue> handler)
         {
-            var Tasklist = new List<Task>();
+            var taskList = new List<Task>();
             foreach (var redis in _redisCluster)
             {
-                redis.GetSubscriber()?.SubscribeAsync(channel, handler); //All request
+                taskList.Add(redis.GetSubscriber().SubscribeAsync(channel, handler)); //All request
             }
-            await Task.WhenAll();
+            await Task.WhenAll(taskList);
         }
 
         /// <inheritdoc/>
         public async Task UnsubscribeAsync(RedisChannel channel)
         {
-            var Tasklist = new List<Task>();
+            var taskList = new List<Task>();
             foreach (var redis in _redisCluster)
             {
-                redis.GetSubscriber()?.Unsubscribe(channel); //All request
+                taskList.Add(redis.GetSubscriber().UnsubscribeAsync(channel)); //All request
             }
-            await Task.WhenAll();
+            await Task.WhenAll(taskList);
         }
 
         #endregion

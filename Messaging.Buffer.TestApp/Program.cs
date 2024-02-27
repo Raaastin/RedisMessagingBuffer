@@ -30,11 +30,13 @@ public class Program
         var app = serviceProvider.GetService<Application>();
 
         await app.Test_Sub_Unsub_Resub();
-
         await app.Test_Sub_Unsub_Resub2();
-
         await app.RunHelloWorl_UsingHandler();
-
+        await app.RunHelloWorld();
+        await app.RunHelloWorld();
+        await app.RunHelloWorld();
+        await app.RunTotalCount();
+        await app.RunTotalCount();
         await app.RunTotalCount();
 
         await Task.Delay(300000); // close in 5 min
