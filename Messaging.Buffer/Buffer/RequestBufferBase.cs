@@ -1,8 +1,11 @@
 ﻿using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks.Sources;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
+
+[assembly: InternalsVisibleTo("Messaging.Buffer.Test")]
 namespace Messaging.Buffer.Buffer
 {
     /// <summary>
@@ -49,7 +52,7 @@ namespace Messaging.Buffer.Buffer
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="value"></param>
-        private void OnResponse(object sender, ReceivedEventArgs eventArgs)
+        internal void OnResponse(object sender, ReceivedEventArgs eventArgs)
         {
             _logger.LogTrace("Response received {Channel} - {CorrelationId}", eventArgs.Channel, eventArgs.CorrelationId);
             var chargerCacheResponse = JsonConvert.DeserializeObject<TResponse>(eventArgs.Value);

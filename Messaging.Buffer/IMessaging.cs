@@ -80,6 +80,5 @@ namespace Messaging.Buffer
         /// </summary>
         /// <param name="OnRequest">Function called on request received</param>
         Task UnsubscribeResponseAsync(string correlationId);
-
     }
 }
