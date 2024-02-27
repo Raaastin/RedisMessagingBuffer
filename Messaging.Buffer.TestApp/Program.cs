@@ -16,7 +16,7 @@ public class Program
         // Services
         var serviceProvider = new ServiceCollection()
             .AddSingleton<Application>()
-            .AddLogging(x => { x.AddConsole(); x.SetMinimumLevel(LogLevel.Trace); })
+            .AddLogging(x => { x.AddConsole(); x.SetMinimumLevel(LogLevel.Information); })
 
             // Register the service and any buffer
             .AddMessagingBuffer(Configuration, "Redis")
@@ -27,10 +27,9 @@ public class Program
 
         var app = serviceProvider.GetService<Application>();
 
-        // Test 1: Send a Hello World request. Each instance respond with Hello World. Initial request display a list of all responses
+        await app.Test_Sub_Unsub_Resub();
+        await app.Test_Sub_Unsub_Resub2();
         await app.RunHelloWorld();
-
-        // Test 2: Send a TotalCount request. The result is the total of all response + an initial value in request
         await app.RunTotalCount();
 
         await Task.Delay(300000); // close in 5 min
