@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Messaging.Buffer.Buffer;
 using Messaging.Buffer.Redis;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
@@ -30,17 +31,24 @@ namespace Messaging.Buffer.Test.MessagingTest
     public class MessagingTestBase
     {
         protected Messaging _service;
+        protected Mock<IServiceProvider> _serviceProviderMock;
         protected Mock<IRedisCollection> _redisCollectionMock;
         protected Mock<ISubscriber> _subscriberMock;
-        protected Mock<ILogger<Messaging>> _loggerMock;
+        protected Mock<ILogger<IMessaging>> _loggerMock;
 
         public MessagingTestBase()
         {
+            _serviceProviderMock = new();
             _loggerMock = new();
             _redisCollectionMock = new();
             _subscriberMock = new();
+
+            _serviceProviderMock.Setup(x => x.GetService(typeof(ILogger<IMessaging>))).Returns(_loggerMock.Object);
+            _serviceProviderMock.Setup(x => x.GetService(typeof(IRedisCollection))).Returns(_redisCollectionMock.Object);
+
             _redisCollectionMock.Setup(x => x.GetSubscriber()).Returns(_subscriberMock.Object);
-            _service = new Messaging(_loggerMock.Object, _redisCollectionMock.Object);
+
+            _service = new Messaging(_serviceProviderMock.Object);
         }
     }
 }

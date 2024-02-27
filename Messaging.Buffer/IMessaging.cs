@@ -53,6 +53,12 @@ namespace Messaging.Buffer
         Task SubscribeRequestAsync<TRequest>(Action<string, TRequest> requestHandler) where TRequest : RequestBase;
 
         /// <summary>
+        /// Subscribe for all request that has a handler defined
+        /// </summary>
+        /// <returns></returns>
+        Task SubscribeHandlers();
+
+        /// <summary>
         /// Unsubscribe for Requests
         /// </summary>
         /// <param name="OnRequest">Function called on request received</param>

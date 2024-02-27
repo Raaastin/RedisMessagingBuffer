@@ -1,5 +1,6 @@
 ﻿using Messaging.Buffer.Service;
 using Messaging.Buffer.TestApp;
+using Messaging.Buffer.TestApp.Handlers;
 using Messaging.Buffer.TestApp.Requests;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,22 +21,47 @@ public class Program
 
             // Register the service and any buffer
             .AddMessagingBuffer(Configuration, "Redis")
+
+            // Register buffer classes
             .AddBuffer<HelloWorldRequestBuffer, HelloWorldRequest, HelloWorldResponse>()
             .AddBuffer<TotalCountRequestBuffer, TotalCountRequest, TotalCountResponse>()
+
+            // register handlers
+            .RegisterHandlers()
 
             .BuildServiceProvider();
 
         var app = serviceProvider.GetService<Application>();
 
+        Console.WriteLine("***********  Test_Sub_Unsub_Resub ************");
         await app.Test_Sub_Unsub_Resub();
+
+        Console.WriteLine("***********  Test_Sub_Unsub_Resub2 ************");
         await app.Test_Sub_Unsub_Resub2();
+
+        Console.WriteLine("***********  RunHelloWorl_UsingHandler ************");
+        await app.RunHelloWorl_UsingHandler();
+        await app.RunHelloWorl_UsingHandler();
+        await app.RunHelloWorl_UsingHandler();
+
+        Console.WriteLine("***********  RunTotalCount_UsingHandler ************");
+        await app.RunTotalCount_UsingHandler();
+        await app.RunTotalCount_UsingHandler();
+        await app.RunTotalCount_UsingHandler();
+
+        Console.WriteLine("***********  RunHelloWorld ************");
         await app.RunHelloWorld();
         await app.RunHelloWorld();
         await app.RunHelloWorld();
+
+        Console.WriteLine("***********  RunTotalCount ************");
         await app.RunTotalCount();
         await app.RunTotalCount();
         await app.RunTotalCount();
 
+        Console.WriteLine("***********  Test End ************");
+        Console.WriteLine("*********************************");
+        Console.WriteLine("***********  App will close in 5 min ************");
         await Task.Delay(300000); // close in 5 min
     }
 }
