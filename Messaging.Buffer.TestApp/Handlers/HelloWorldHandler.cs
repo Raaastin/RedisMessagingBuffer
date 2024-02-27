@@ -12,7 +12,7 @@ namespace Messaging.Buffer.TestApp.Handlers
         {
         }
 
-        public override async void Handle<TRequest>(string correlationId, TRequest request)
+        public override async void Handle(string correlationId, HelloWorldRequest request)
         {
             _logger.LogTrace($"Handle: {nameof(HelloWorldHandler)}");
 

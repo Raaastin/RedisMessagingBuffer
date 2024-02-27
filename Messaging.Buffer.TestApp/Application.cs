@@ -94,8 +94,8 @@ namespace Messaging.Buffer.TestApp
             var response = await buffer.SendRequestAsync();
 
             _logger.LogTrace($"Response from several apps:\r\n{response.InstanceResponse}");
-            await _messaging.UnsubscribeRequestAsync<HelloWorldRequest>();
             _logger.LogInformation($"HelloWorld test: " + response.InstanceResponse);
+            await _messaging.UnsubscribeRequestAsync<HelloWorldRequest>();
         }
 
         /// <summary>
@@ -103,7 +103,8 @@ namespace Messaging.Buffer.TestApp
         /// </summary>
         public async Task RunHelloWorl_UsingHandler()
         {
-            _messaging.SubscribeHandlers();
+            await Task.Delay(1000);
+            await _messaging.SubscribeHandlers();
 
             _logger.LogTrace("Performing HelloWorld process");
 
@@ -111,7 +112,7 @@ namespace Messaging.Buffer.TestApp
             var response = await buffer.SendRequestAsync();
 
             _logger.LogTrace($"Response from several apps:\r\n{response.InstanceResponse}");
-            _logger.LogInformation($"HelloWorld test: " + response.InstanceResponse);
+            _logger.LogInformation($"HelloWorld test: \r\n" + response.InstanceResponse);
 
             await _messaging.UnsubscribeRequestAsync<HelloWorldRequest>();
         }

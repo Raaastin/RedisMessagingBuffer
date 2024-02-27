@@ -282,12 +282,13 @@ namespace Messaging.Buffer
         }
 
         /// <inheritdoc/>
-        public void SubscribeHandlers()
+        public async Task SubscribeHandlers()
         {
             var Handlers = Reflexion.GetTypesWithAttribute<HandlerAttribute>();
             foreach (var handler in Handlers)
             {
-                _serviceProvider.GetRequiredService(handler);
+                dynamic handlerService = _serviceProvider.GetRequiredService(handler);
+                await handlerService.Subscribe();
             }
         }
 

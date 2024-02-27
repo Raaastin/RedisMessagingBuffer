@@ -10,7 +10,6 @@ namespace Messaging.Buffer.Buffer
     {
         protected IMessaging _messaging;
         protected ILogger<HandlerBase<TRequest>> _logger;
-        public Type RequestType;
 
         /// <summary>
         /// Ctor
@@ -22,19 +21,23 @@ namespace Messaging.Buffer.Buffer
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _messaging = messaging ?? throw new ArgumentNullException(nameof(messaging));
-            RequestType = typeof(TRequest);
+        }
 
-            // Subscribe this handle to redis.
-            _messaging.SubscribeRequestAsync<TRequest>(Handle);
+        /// <summary>
+        /// Subscribe to Redis
+        /// </summary>
+        /// <returns></returns>
+        public async Task Subscribe()
+        {
+            await _messaging.SubscribeRequestAsync<TRequest>(Handle);
         }
 
         /// <summary>
         /// Handle request
         /// </summary>
-        /// <typeparam name="TRequest"></typeparam>
         /// <param name="correlationId"></param>
         /// <param name="request"></param>
-        public abstract void Handle<TRequest>(string correlationId, TRequest request);
+        public abstract void Handle(string correlationId, TRequest request);
 
 
         /// <summary>

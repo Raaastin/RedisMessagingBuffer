@@ -56,7 +56,7 @@ namespace Messaging.Buffer
         /// Subscribe for all request that has a handler defined
         /// </summary>
         /// <returns></returns>
-        void SubscribeHandlers();
+        Task SubscribeHandlers();
 
         /// <summary>
         /// Unsubscribe for Requests
