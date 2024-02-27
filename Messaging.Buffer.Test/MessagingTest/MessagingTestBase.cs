@@ -43,8 +43,8 @@ namespace Messaging.Buffer.Test.MessagingTest
             _redisCollectionMock = new();
             _subscriberMock = new();
 
-            _serviceProviderMock.Setup(x => x.GetRequiredService<ILogger<IMessaging>>()).Returns(_loggerMock.Object);
-            _serviceProviderMock.Setup(x => x.GetRequiredService<IRedisCollection>()).Returns(_redisCollectionMock.Object);
+            _serviceProviderMock.Setup(x => x.GetService(typeof(ILogger<IMessaging>))).Returns(_loggerMock.Object);
+            _serviceProviderMock.Setup(x => x.GetService(typeof(IRedisCollection))).Returns(_redisCollectionMock.Object);
 
             _redisCollectionMock.Setup(x => x.GetSubscriber()).Returns(_subscriberMock.Object);
 
