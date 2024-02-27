@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
+using Messaging.Buffer.TestApp.Handlers;
 using Messaging.Buffer.TestApp.Requests;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -20,11 +22,15 @@ namespace Messaging.Buffer.TestApp
             _messaging = messaging;
             _serviceProvider = serviceProvider;
 
-            // (deprecated)
+            // example of subscribe any
             //_messaging.SubscribeAnyRequestAsync(OnRequest);
 
+            // example of subscribe per request
             //_messaging.SubscribeRequestAsync<HelloWorldRequest>(OnHelloWorldRequestReceived);
             //_messaging.SubscribeRequestAsync<TotalCountRequest>(OnTotalCountRequestReceived);
+
+            // exemple of subscribe per handler (subscribe any request that has a handler defined)
+            //_messaging.SubscribeHandlers();
         }
 
         /// <summary>
@@ -90,6 +96,24 @@ namespace Messaging.Buffer.TestApp
             _logger.LogTrace($"Response from several apps:\r\n{response.InstanceResponse}");
             await _messaging.UnsubscribeRequestAsync<HelloWorldRequest>();
             _logger.LogInformation($"HelloWorld test: " + response.InstanceResponse);
+        }
+
+        /// <summary>
+        /// Hello world example: using Handler
+        /// </summary>
+        public async Task RunHelloWorl_UsingHandler()
+        {
+            _messaging.SubscribeHandlers();
+
+            _logger.LogTrace("Performing HelloWorld process");
+
+            var buffer = _serviceProvider.GetRequiredService<HelloWorldRequestBuffer>();
+            var response = await buffer.SendRequestAsync();
+
+            _logger.LogTrace($"Response from several apps:\r\n{response.InstanceResponse}");
+            _logger.LogInformation($"HelloWorld test: " + response.InstanceResponse);
+
+            await _messaging.UnsubscribeRequestAsync<HelloWorldRequest>();
         }
 
         /// <summary>

@@ -44,6 +44,19 @@ namespace Messaging.Buffer.Service
             return services;
         }
 
+        /// <summary>
+        /// Register a handler for a request
+        /// </summary>
+        /// <typeparam name="TRequest"></typeparam>
+        /// <typeparam name="THandler"></typeparam>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        public static IServiceCollection RegisterHandler<TRequest, THandler>(this IServiceCollection services) where THandler : HandlerBase<TRequest> where TRequest : RequestBase
+        {
+            services.AddSingleton<THandler>();
+            return services;
+        }
+
         #endregion Public Methods
     }
 }

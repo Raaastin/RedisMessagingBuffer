@@ -1,5 +1,6 @@
 ﻿using Messaging.Buffer.Service;
 using Messaging.Buffer.TestApp;
+using Messaging.Buffer.TestApp.Handlers;
 using Messaging.Buffer.TestApp.Requests;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,7 @@ public class Program
             .AddMessagingBuffer(Configuration, "Redis")
             .AddBuffer<HelloWorldRequestBuffer, HelloWorldRequest, HelloWorldResponse>()
             .AddBuffer<TotalCountRequestBuffer, TotalCountRequest, TotalCountResponse>()
+            .RegisterHandler<HelloWorldRequest, HelloWorldHandler>()
 
             .BuildServiceProvider();
 
@@ -30,6 +32,7 @@ public class Program
         await app.Test_Sub_Unsub_Resub();
         await app.Test_Sub_Unsub_Resub2();
         await app.RunHelloWorld();
+        await app.RunHelloWorl_UsingHandler();
         await app.RunTotalCount();
 
         await Task.Delay(300000); // close in 5 min

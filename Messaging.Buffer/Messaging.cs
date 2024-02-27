@@ -1,10 +1,14 @@
 ﻿using System.Collections.Concurrent;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Nodes;
+using Messaging.Buffer.Attributes;
 using Messaging.Buffer.Buffer;
+using Messaging.Buffer.Helpers;
 using Messaging.Buffer.Redis;
 using Messaging.Buffer.Service;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -17,6 +21,7 @@ namespace Messaging.Buffer
     /// <inheritdoc/>
     public class Messaging : IMessaging
     {
+        private readonly IServiceProvider _serviceProvider;
         private readonly IRedisCollection _redisCollection;
         private readonly ILogger<IMessaging> _logger;
 
@@ -30,12 +35,12 @@ namespace Messaging.Buffer
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="logger"></param>
-        /// <param name="redisCollection"></param>
-        public Messaging(ILogger<IMessaging> logger, IRedisCollection redisCollection)
+        /// <param name="serviceProvider"></param>
+        public Messaging(IServiceProvider serviceProvider)
         {
-            _redisCollection = redisCollection;
-            _logger = logger;
+            _serviceProvider = serviceProvider;
+            _redisCollection = serviceProvider.GetRequiredService<IRedisCollection>();
+            _logger = serviceProvider.GetRequiredService<ILogger<IMessaging>>();
             RequestDelegateCollection = new();
             ResponseDelegateCollection = new();
         }
@@ -273,6 +278,16 @@ namespace Messaging.Buffer
             {
                 _logger.LogError(ex, "Could not Subscribe to channel {Channel}", channel);
                 ResponseDelegateCollection.TryRemove(correlationId, out var temp);
+            }
+        }
+
+        /// <inheritdoc/>
+        public void SubscribeHandlers()
+        {
+            var Handlers = Reflexion.GetTypesWithAttribute<HandlerAttribute>();
+            foreach (var handler in Handlers)
+            {
+                _serviceProvider.GetRequiredService(handler);
             }
         }
 
