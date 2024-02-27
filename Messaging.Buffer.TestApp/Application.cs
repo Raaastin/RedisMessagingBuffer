@@ -45,6 +45,8 @@ namespace Messaging.Buffer.TestApp
                 _logger.LogInformation($"{nameof(Test_Sub_Unsub_Resub)} : SUCCESS");
             else
                 _logger.LogInformation($"{nameof(Test_Sub_Unsub_Resub)} : FAILURE");
+
+            await _messaging.UnsubscribeRequestAsync<HelloWorldRequest>();
         }
 
         /// <summary>
@@ -61,13 +63,16 @@ namespace Messaging.Buffer.TestApp
             await _messaging.SubscribeAnyRequestAsync((object e, ReceivedEventArgs args) => { test_count++; });
 
             var testBuffer = _serviceProvider.GetService<HelloWorldRequestBuffer>();
+            testBuffer.timeoutMs = 2000;
             var result = await testBuffer.SendRequestAsync();
 
             if (test_count == 1)
                 _logger.LogInformation($"{nameof(Test_Sub_Unsub_Resub2)} : SUCCESS");
             else
                 _logger.LogInformation($"{nameof(Test_Sub_Unsub_Resub2)} : FAILURE");
+
             test_count = 0;
+            await _messaging.UnsubscribeAnyRequestAsync();
         }
         private static int test_count = 0;
 
@@ -76,12 +81,15 @@ namespace Messaging.Buffer.TestApp
         /// </summary>
         public async Task RunHelloWorld()
         {
+            await _messaging.SubscribeRequestAsync<HelloWorldRequest>(OnHelloWorldRequestReceived);
             _logger.LogTrace("Performing HelloWorld process");
 
             var buffer = _serviceProvider.GetRequiredService<HelloWorldRequestBuffer>();
             var response = await buffer.SendRequestAsync();
 
             _logger.LogTrace($"Response from several apps:\r\n{response.InstanceResponse}");
+            await _messaging.UnsubscribeRequestAsync<HelloWorldRequest>();
+            _logger.LogInformation($"HelloWorld test: " + response.InstanceResponse);
         }
 
         /// <summary>
@@ -89,6 +97,7 @@ namespace Messaging.Buffer.TestApp
         /// </summary>
         public async Task RunTotalCount()
         {
+            await _messaging.SubscribeRequestAsync<TotalCountRequest>(OnTotalCountRequestReceived);
             _logger.LogTrace("Performing TotalCount process");
 
             var buffer = _serviceProvider.GetRequiredService<TotalCountRequestBuffer>();
@@ -96,6 +105,8 @@ namespace Messaging.Buffer.TestApp
             var response = await buffer.SendRequestAsync();
 
             _logger.LogTrace($"Total count among all the apps: {response.Count}");
+            await _messaging.UnsubscribeRequestAsync<TotalCountRequest>();
+            _logger.LogInformation($"TotalCount test: (expected 100 + 5 per instance running). RESULT: " + response.Count);
         }
 
         private async void OnRequest(object sender, ReceivedEventArgs e)
