@@ -109,7 +109,6 @@ namespace Messaging.Buffer.TestApp
         /// </summary>
         public async Task RunHelloWorl_UsingHandler()
         {
-            await Task.Delay(1000);
             await _messaging.SubscribeHandlers();
 
             _logger.LogTrace("Performing HelloWorld process");
@@ -121,6 +120,25 @@ namespace Messaging.Buffer.TestApp
             _logger.LogInformation($"HelloWorld test: \r\n" + response.InstanceResponse);
 
             await _messaging.UnsubscribeRequestAsync<HelloWorldRequest>();
+            await _messaging.UnsubscribeRequestAsync<TotalCountRequest>();
+        }
+
+        /// <summary>
+        /// Total Count example: using Handler
+        /// </summary>
+        public async Task RunTotalCount_UsingHandler()
+        {
+            await _messaging.SubscribeHandlers();
+
+            _logger.LogTrace("Performing HelloWorld process");
+
+            var buffer = _serviceProvider.GetRequiredService<TotalCountRequestBuffer>();
+            var response = await buffer.SendRequestAsync();
+
+            _logger.LogInformation($"TotalCount test (from a handler) : (expected 100 + 5 per instance running). RESULT: " + response.Count);
+
+            await _messaging.UnsubscribeRequestAsync<HelloWorldRequest>();
+            await _messaging.UnsubscribeRequestAsync<TotalCountRequest>();
         }
 
         /// <summary>

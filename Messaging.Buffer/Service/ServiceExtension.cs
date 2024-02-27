@@ -1,4 +1,6 @@
-﻿using Messaging.Buffer.Buffer;
+﻿using Messaging.Buffer.Attributes;
+using Messaging.Buffer.Buffer;
+using Messaging.Buffer.Helpers;
 using Messaging.Buffer.Redis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,6 +56,21 @@ namespace Messaging.Buffer.Service
         public static IServiceCollection RegisterHandler<TRequest, THandler>(this IServiceCollection services) where THandler : HandlerBase<TRequest> where TRequest : RequestBase
         {
             services.AddSingleton<THandler>();
+            return services;
+        }
+
+        /// <summary>
+        /// Register all handlers that reference HandlerAttribute
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        public static IServiceCollection RegisterHandlers(this IServiceCollection services)
+        {
+            var handlers = Reflexion.GetTypesWithAttribute<HandlerAttribute>();
+            foreach(var handler in handlers)
+            {
+                services.AddSingleton(handler);
+            }
             return services;
         }
 
