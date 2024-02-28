@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Messaging.Buffer.Buffer;
+using Messaging.Buffer.Exceptions;
 using Messaging.Buffer.Redis;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
@@ -65,6 +66,48 @@ namespace Messaging.Buffer.Test.MessagingTest
                         It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Could not Subscribe to channel {channel}")),
                         It.IsAny<Exception>(),
                         It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)), Times.Once);
+        }
+
+        [Fact]
+        public async void ThrowException_WhenSubscriptionAlreadyExists()
+        {
+            // Arrange
+            var requestId = Guid.NewGuid().ToString();
+            var channel = $"Response:{requestId}";
+            _redisCollectionMock.Setup(x => x.SubscribeAsync(RedisChannel.Pattern(channel), _service.OnResponse)).Verifiable(Times.Once);
+
+            // Act
+            await _service.SubscribeResponseAsync(requestId, TestResponseHandler);
+            await Assert.ThrowsAsync<SubscriptionException>(() => _service.SubscribeResponseAsync(requestId, TestResponseHandler));
+
+            // Assert
+            Assert.Single(_service.ResponseDelegateCollection);
+            Assert.Equal(TestResponseHandler, _service.ResponseDelegateCollection[$"{requestId}"]);
+            _redisCollectionMock.Verify();
+        }
+
+
+        [Fact]
+        public async void AllowSubscription_On2ndAttempt()
+        {
+            // Arrange
+            var requestId = Guid.NewGuid().ToString();
+            var channel = $"Response:{requestId}";
+            _redisCollectionMock.SetupSequence(x => x.SubscribeAsync(RedisChannel.Pattern(channel), _service.OnResponse))
+                .Throws(new Exception("failed."))
+                .Returns(Task.CompletedTask);
+
+            // Act once
+            await _service.SubscribeResponseAsync(requestId, TestResponseHandler);
+            Assert.Empty(_service.ResponseDelegateCollection);
+
+            // Act twice
+            await _service.SubscribeResponseAsync(requestId, TestResponseHandler);
+
+            // Assert
+            Assert.Single(_service.ResponseDelegateCollection);
+            Assert.Equal(TestResponseHandler, _service.ResponseDelegateCollection[$"{requestId}"]);
+            _redisCollectionMock.Verify(x => x.SubscribeAsync(RedisChannel.Pattern(channel), _service.OnResponse), Times.Exactly(2));
         }
     }
 }
