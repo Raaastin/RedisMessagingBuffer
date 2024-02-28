@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using Messaging.Buffer.Buffer;
+using Messaging.Buffer.Exceptions;
 
 namespace Messaging.Buffer
 {
@@ -43,25 +44,27 @@ namespace Messaging.Buffer
         /// <summary>
         /// Subscribe for Requests
         /// </summary>
-        /// <param name="OnRequest">Function called on request received</param>
+        /// <param name="requestHandler">Function called on request received</param>
+        /// <exception cref="SubscriptionException">Subscribtion already exists or is conflicting with another</exception>
         Task SubscribeAnyRequestAsync(EventHandler<ReceivedEventArgs> requestHandler);
 
         /// <summary>
         /// Subscribe for specific request
         /// </summary>
         /// <param name="requestHandler">Function called on request received</param>
+        /// <exception cref="SubscriptionException">Subscribtion already exists or is conflicting with another</exception>
         Task SubscribeRequestAsync<TRequest>(Action<string, TRequest> requestHandler) where TRequest : RequestBase;
 
         /// <summary>
         /// Subscribe for all request that has a handler defined
         /// </summary>
         /// <returns></returns>
+        /// <exception cref="SubscriptionException">Subscribtion already exists or is conflicting with another</exception>
         Task SubscribeHandlers();
 
         /// <summary>
         /// Unsubscribe for Requests
         /// </summary>
-        /// <param name="OnRequest">Function called on request received</param>
         Task UnsubscribeAnyRequestAsync();
 
         /// <summary>
@@ -72,13 +75,15 @@ namespace Messaging.Buffer
         /// <summary>
         /// Subscribe for response. 
         /// </summary>
-        /// <param name="OnRequest">Function called on request received</param>
+        /// <param name="correlationId">Buffer unique identifier</param>
+        /// <param name="responseHandler">Function called on request received</param>
+        /// <exception cref="SubscriptionException">Subscribtion already exists or is conflicting with another</exception>
         Task SubscribeResponseAsync(string correlationId, Action<object, ReceivedEventArgs> responseHandler);
 
         /// <summary>
         /// Unsubscribe for response. 
         /// </summary>
-        /// <param name="OnRequest">Function called on request received</param>
+        /// <param name="correlationId">Buffer unique identifier</param>
         Task UnsubscribeResponseAsync(string correlationId);
     }
 }

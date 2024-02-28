@@ -27,9 +27,10 @@ namespace Messaging.Buffer.Buffer
         /// Subscribe to Redis
         /// </summary>
         /// <returns></returns>
-        public async Task Subscribe()
+        public async Task<string> Subscribe()
         {
             await _messaging.SubscribeRequestAsync<TRequest>(Handle);
+            return typeof(TRequest).Name;
         }
 
         /// <summary>
