@@ -247,6 +247,7 @@ namespace Messaging.Buffer
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Could not Subscribe to channel {Channel}", channel);
+                RequestReceived -= requestHandler;
             }
         }
 
