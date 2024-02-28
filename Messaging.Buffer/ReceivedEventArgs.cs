@@ -1,5 +1,8 @@
 ﻿namespace Messaging.Buffer
 {
+    /// <summary>
+    /// Message received event args
+    /// </summary>
     public class ReceivedEventArgs : EventArgs
     {
         /// <summary>

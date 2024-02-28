@@ -1,10 +1,12 @@
 ﻿using System.Collections.Concurrent;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Nodes;
 using Messaging.Buffer.Attributes;
 using Messaging.Buffer.Buffer;
+using Messaging.Buffer.Exceptions;
 using Messaging.Buffer.Helpers;
 using Messaging.Buffer.Redis;
 using Messaging.Buffer.Service;
@@ -228,6 +230,12 @@ namespace Messaging.Buffer
         /// <inheritdoc/>
         public async Task SubscribeAnyRequestAsync(EventHandler<ReceivedEventArgs> requestHandler)
         {
+            if (RequestReceived is not null)
+                throw new SubscriptionException("The subscription for any request is done already.");
+
+            if (RequestDelegateCollection.Any())
+                throw new SubscriptionException("Conflicting subscription detected. Cannot perform both request subscription and any request subscription at the same time.");
+
             var channel = $"Request:*:*"; // subscribe to all possible request
             try
             {
@@ -239,6 +247,7 @@ namespace Messaging.Buffer
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Could not Subscribe to channel {Channel}", channel);
+                RequestReceived -= requestHandler;
             }
         }
 
@@ -246,6 +255,13 @@ namespace Messaging.Buffer
         public async Task SubscribeRequestAsync<TRequest>(Action<string, TRequest> requestHandler) where TRequest : RequestBase
         {
             var type = typeof(TRequest).FullName;
+
+            if (RequestReceived is not null)
+                throw new SubscriptionException("A subscription for any request is done already. Cannot subscribe for requests independantly.");
+
+            if (RequestDelegateCollection.ContainsKey(type))
+                throw new SubscriptionException("This subscription already exists.");
+
             var channel = $"Request:*:{type}"; // subscribe to TRequest
             try
             {
@@ -253,7 +269,7 @@ namespace Messaging.Buffer
                     throw new Exception($"Could not add request handler to collection. Subscription canceled.");
 
                 _logger.LogTrace("Subscribing to {Channel}", channel);
-                await _redisCollection.SubscribeAsync(RedisChannel.Pattern(channel), OnRequest); //All request
+                await _redisCollection.SubscribeAsync(RedisChannel.Pattern(channel), OnRequest);
             }
             catch (Exception ex)
             {
@@ -265,6 +281,9 @@ namespace Messaging.Buffer
         /// <inheritdoc/>
         public async Task SubscribeResponseAsync(string correlationId, Action<object, ReceivedEventArgs> responseHandler)
         {
+            if (ResponseDelegateCollection.ContainsKey(correlationId))
+                throw new SubscriptionException($"This subscription already exists");
+
             var channel = $"Response:{correlationId}";
             try
             {
@@ -281,14 +300,20 @@ namespace Messaging.Buffer
             }
         }
 
+        private List<string> HandlerSubscribedList = new List<string>();
+
         /// <inheritdoc/>
         public async Task SubscribeHandlers()
         {
             var Handlers = Reflexion.GetTypesWithAttribute<HandlerAttribute>();
             foreach (var handler in Handlers)
             {
+                if (HandlerSubscribedList.Contains(handler.Name))
+                    throw new SubscriptionException($"Dupplicate handler detected. Handler : {handler.Name}.");
+
                 dynamic handlerService = _serviceProvider.GetRequiredService(handler);
-                await handlerService.Subscribe();
+                string subscribed = await handlerService.Subscribe();
+                HandlerSubscribedList.Add(subscribed);
             }
         }
 

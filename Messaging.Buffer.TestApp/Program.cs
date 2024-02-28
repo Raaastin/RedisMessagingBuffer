@@ -59,6 +59,9 @@ public class Program
         await app.RunTotalCount();
         await app.RunTotalCount();
 
+        Console.WriteLine("***********  Subscription Conflicting on purpose ************");
+        await app.DoingShitOnPurpose();
+
         Console.WriteLine("***********  Test End ************");
         Console.WriteLine("*********************************");
         Console.WriteLine("***********  App will close in 5 min ************");

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Messaging.Buffer.Exceptions;
 using Messaging.Buffer.TestApp.Handlers;
 using Messaging.Buffer.TestApp.Requests;
 using Microsoft.Extensions.DependencyInjection;
@@ -156,6 +157,92 @@ namespace Messaging.Buffer.TestApp
             _logger.LogTrace($"Total count among all the apps: {response.Count}");
             await _messaging.UnsubscribeRequestAsync<TotalCountRequest>();
             _logger.LogInformation($"TotalCount test: (expected 100 + 5 per instance running). RESULT: " + response.Count);
+        }
+
+        /// <summary>
+        /// Attempt various forbidden subscription
+        /// </summary>
+        /// <returns></returns>
+        public async Task DoingShitOnPurpose()
+        {
+
+            _logger.LogInformation("Subscring to Any Request.");
+            await _messaging.SubscribeAnyRequestAsync(OnRequest);
+            try
+            {
+                _logger.LogInformation($"Subscribing to Any Request a 2nd time. Expecting failure...");
+                await _messaging.SubscribeAnyRequestAsync(OnRequest);
+            }
+            catch (SubscriptionException ex)
+            {
+                _logger.LogInformation($"EXCEPTION: {ex.Message}");
+            }
+
+            try
+            {
+                _logger.LogInformation($"Subscribing to {nameof(HelloWorldRequest)}. Expecting failure...");
+                await _messaging.SubscribeRequestAsync<HelloWorldRequest>(OnHelloWorldRequestReceived);
+            }
+            catch (SubscriptionException ex)
+            {
+                _logger.LogInformation($"EXCEPTION: {ex.Message}");
+            }
+
+            await _messaging.UnsubscribeAnyRequestAsync();
+            _logger.LogInformation($"Subscription cleared.");
+
+
+            _logger.LogInformation($"Subscribing to {nameof(HelloWorldRequest)}.");
+            await _messaging.SubscribeRequestAsync<HelloWorldRequest>(OnHelloWorldRequestReceived);
+            try
+            {
+                _logger.LogInformation($"Subscribing to {nameof(HelloWorldRequest)}. Expecting failure...");
+                await _messaging.SubscribeRequestAsync<HelloWorldRequest>(OnHelloWorldRequestReceived);
+            }
+            catch (SubscriptionException ex)
+            {
+                _logger.LogInformation($"EXCEPTION: {ex.Message}");
+            }
+
+            _logger.LogInformation($"Subscribing to {nameof(TotalCountRequest)}.");
+            await _messaging.SubscribeRequestAsync<TotalCountRequest>(OnTotalCountRequestReceived);
+            try
+            {
+                _logger.LogInformation($"Subscribing to {nameof(TotalCountRequest)}. Expecting failure...");
+                await _messaging.SubscribeRequestAsync<TotalCountRequest>(OnTotalCountRequestReceived);
+            }
+            catch (SubscriptionException ex)
+            {
+                _logger.LogInformation($"EXCEPTION: {ex.Message}");
+            }
+
+            try
+            {
+                _logger.LogInformation($"Subscribing handlers. Expecting failure...");
+                await _messaging.SubscribeHandlers();
+            }
+            catch (SubscriptionException ex)
+            {
+                _logger.LogInformation($"EXCEPTION: {ex.Message}");
+            }
+
+            await _messaging.UnsubscribeRequestAsync<HelloWorldRequest>();
+            await _messaging.UnsubscribeRequestAsync<TotalCountRequest>();
+            _logger.LogInformation($"Subscription cleared.");
+
+            _logger.LogInformation($"Subscribing handlers");
+            await _messaging.SubscribeHandlers();
+            try
+            {
+                _logger.LogInformation($"Subscribing to Any Request. Expecting failure...");
+                await _messaging.SubscribeAnyRequestAsync(OnRequest);
+            }
+            catch (SubscriptionException ex)
+            {
+                _logger.LogInformation($"EXCEPTION: {ex.Message}");
+            }
+            await _messaging.UnsubscribeRequestAsync<HelloWorldRequest>();
+            _logger.LogInformation($"Subscription cleared.");
         }
 
         private async void OnRequest(object sender, ReceivedEventArgs e)
