@@ -1,0 +1,30 @@
+version: '3.4'
+
+services:   
+      
+  # # emulatorredis:
+    # # image: redis:latest
+    # # ports:
+      # # - "6379:6379/tcp"   
+
+  webappexample:
+      build:
+        context: ../.
+        dockerfile: WebAppExample/Dockerfile   
+        args:
+          CONFIG: "Release"
+      deploy:
+        mode: replicated
+        replicas: 3
+      environment:
+        Redis__RedisConnexionStrings__0: "emulatorredis:6379"
+      ports:
+        #HTTP
+        - "9101-9103:80"
+        # HTTPS
+        - "9104-9106:443" 
+
+networks: 
+  default: 
+    name: local
+    external: true

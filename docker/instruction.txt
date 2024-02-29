@@ -1,0 +1,1 @@
+run the script from the SLN direction (ex: /docker/docker-run.ps1
