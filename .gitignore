@@ -6,3 +6,6 @@ Messaging.Buffer/obj/
 Messaging.Buffer.Test/bin/
 Messaging.Buffer.Test/obj/
 TestResults/
+WebAppExample/obj/
+WebAppExample/bin/
+Messaging.Buffer.TestAppWeb/obj/Debug/net8.0/Messaging.Buffer.TestAppWeb.csproj.CoreCompileInputs.cache
