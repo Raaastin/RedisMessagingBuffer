@@ -1,1 +1,1 @@
-run the script from the SLN direction (ex: /docker/docker-run.ps1
+Run the PS1 from the csproj location (usually: ../docker/run-docker)
