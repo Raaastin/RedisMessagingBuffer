@@ -1,0 +1,31 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+@section Scripts {
+    <script type="text/javascript">
+
+        function CallHelloWorld() {
+            var callUrl = "@Url.Action("RunHelloWorld", "HelloWorld")";
+            $.ajax({
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                url: callUrl,
+            }).done(function (data, status) {
+                alert(data);
+            }).fail(function (data, status) {
+                alert("failed");
+            });
+        }
+
+    </script>
+}
+
+<div class="text-center">
+    <h1 class="display-4">Hellow World example</h1>
+    <p>Run Hello World.</p>
+
+    <button Onclick="CallHelloWorld(); false;">Click</button>
+</div>

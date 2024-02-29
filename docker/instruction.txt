@@ -1,0 +1,1 @@
+Run the PS1 from the csproj location (usually: ../docker/run-docker)

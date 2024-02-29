@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Messaging.Buffer", "Messagi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Messaging.Buffer.TestApp", "Messaging.Buffer.TestApp\Messaging.Buffer.TestApp.csproj", "{ABF2E07C-13A0-4B28-B21B-E64F0245F623}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messaging.Buffer.Test", "Messaging.Buffer.Test\Messaging.Buffer.Test.csproj", "{E2782CFF-3935-4D2A-80F8-7C0E5F066F69}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Messaging.Buffer.Test", "Messaging.Buffer.Test\Messaging.Buffer.Test.csproj", "{E2782CFF-3935-4D2A-80F8-7C0E5F066F69}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAppExample", "WebAppExample\WebAppExample.csproj", "{446D11CF-D493-456E-880B-3C836ACA4C38}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{E2782CFF-3935-4D2A-80F8-7C0E5F066F69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E2782CFF-3935-4D2A-80F8-7C0E5F066F69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E2782CFF-3935-4D2A-80F8-7C0E5F066F69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{446D11CF-D493-456E-880B-3C836ACA4C38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{446D11CF-D493-456E-880B-3C836ACA4C38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{446D11CF-D493-456E-880B-3C836ACA4C38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{446D11CF-D493-456E-880B-3C836ACA4C38}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
