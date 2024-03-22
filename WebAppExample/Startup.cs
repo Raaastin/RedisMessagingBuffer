@@ -29,10 +29,11 @@ namespace WebAppExample
             services.AddControllers();
             services.AddMvc(o => o.EnableEndpointRouting = false);
 
-            services.AddMessagingBuffer(Configuration, "Redis");
+            services.AddMessagingBuffer(Configuration, "Redis", (cfg) =>
+            {
+                cfg.AddBuffer<HelloWorldRequestBuffer, HelloWorldRequest, HelloWorldResponse>();
+            });
             services.AddSingleton<MessagingService>();
-
-            services.AddBuffer<HelloWorldRequestBuffer, HelloWorldRequest, HelloWorldResponse>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime applicationLifetime)

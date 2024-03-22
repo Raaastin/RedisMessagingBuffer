@@ -18,59 +18,15 @@ namespace Messaging.Buffer.Service
         /// <param name="configuration"></param>
         /// <param name="configSection"></param>
         /// <returns></returns>
-        public static IServiceCollection AddMessagingBuffer(this IServiceCollection services, IConfiguration configuration, string configSection)
+        public static IServiceCollection AddMessagingBuffer(this IServiceCollection services, IConfiguration configuration, string configSection, Action<MessagingConfigurator> configurator)
         {
             services.Configure<RedisOptions>(configuration.GetSection(configSection));
 
             services.AddSingleton<IRedisCollection, RedisCollection>();
             services.AddSingleton<IMessaging, Messaging>();
 
-            return services;
-        }
+            configurator.Invoke(new MessagingConfigurator(services));
 
-        /// <summary>
-        /// Register a buffer, request, response
-        /// </summary>
-        /// <typeparam name="TBuffer"></typeparam>
-        /// <typeparam name="TRequest"></typeparam>
-        /// <typeparam name="TResponse"></typeparam>
-        /// <param name="services"></param>
-        /// <returns></returns>
-        public static IServiceCollection AddBuffer<TBuffer, TRequest, TResponse>(this IServiceCollection services)
-            where TBuffer : RequestBufferBase<TRequest, TResponse>
-            where TRequest : RequestBase
-            where TResponse : ResponseBase
-        {
-            services.AddTransient<TBuffer>();
-            services.AddTransient<TRequest>();
-            return services;
-        }
-
-        /// <summary>
-        /// Register a handler for a request
-        /// </summary>
-        /// <typeparam name="TRequest"></typeparam>
-        /// <typeparam name="THandler"></typeparam>
-        /// <param name="services"></param>
-        /// <returns></returns>
-        public static IServiceCollection RegisterHandler<TRequest, THandler>(this IServiceCollection services) where THandler : HandlerBase<TRequest> where TRequest : RequestBase
-        {
-            services.AddSingleton<THandler>();
-            return services;
-        }
-
-        /// <summary>
-        /// Register all handlers that reference HandlerAttribute
-        /// </summary>
-        /// <param name="services"></param>
-        /// <returns></returns>
-        public static IServiceCollection RegisterHandlers(this IServiceCollection services)
-        {
-            var handlers = Reflexion.GetHandlerTypes();
-            foreach (var handler in handlers)
-            {
-                services.AddSingleton(handler);
-            }
             return services;
         }
 

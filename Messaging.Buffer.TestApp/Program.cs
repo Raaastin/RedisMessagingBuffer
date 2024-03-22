@@ -20,14 +20,12 @@ public class Program
             .AddLogging(x => { x.AddConsole(); x.SetMinimumLevel(LogLevel.Information); })
 
             // Register the service and any buffer
-            .AddMessagingBuffer(Configuration, "Redis")
-
-            // Register buffer classes
-            .AddBuffer<HelloWorldRequestBuffer, HelloWorldRequest, HelloWorldResponse>()
-            .AddBuffer<TotalCountRequestBuffer, TotalCountRequest, TotalCountResponse>()
-
-            // register handlers
-            .RegisterHandlers()
+            .AddMessagingBuffer(Configuration, "Redis", (cfg) =>
+            {
+                cfg.AddBuffer<HelloWorldRequestBuffer, HelloWorldRequest, HelloWorldResponse>();
+                cfg.AddBuffer<TotalCountRequestBuffer, TotalCountRequest, TotalCountResponse>();
+                cfg.RegisterHandlers();
+            })
 
             .BuildServiceProvider();
 
