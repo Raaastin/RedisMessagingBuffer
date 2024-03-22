@@ -19,7 +19,7 @@ public class Program
             .AddSingleton<Application>()
             .AddLogging(x => { x.AddConsole(); x.SetMinimumLevel(LogLevel.Information); })
 
-            // Register the service and any buffer
+            // Register and configure the service
             .AddMessagingBuffer(Configuration, "Redis", (cfg) =>
             {
                 cfg.AddBuffer<HelloWorldRequestBuffer, HelloWorldRequest, HelloWorldResponse, HelloWorldHandler>();
