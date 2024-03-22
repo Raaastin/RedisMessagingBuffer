@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks.Sources;
+using Messaging.Buffer.Attributes;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -11,6 +12,7 @@ namespace Messaging.Buffer.Buffer
     /// <summary>
     /// Base class for buffer
     /// </summary>
+    [RequestBuffer]
     public abstract class RequestBufferBase<TRequest, TResponse>
         where TRequest : RequestBase
         where TResponse : ResponseBase

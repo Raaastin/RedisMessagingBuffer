@@ -22,9 +22,18 @@ public class Program
             // Register and configure the service
             .AddMessagingBuffer(Configuration, "Redis", (cfg) =>
             {
-                cfg.AddBuffer<HelloWorldRequestBuffer, HelloWorldRequest, HelloWorldResponse, HelloWorldHandler>();
-                cfg.AddBuffer<TotalCountRequestBuffer, TotalCountRequest, TotalCountResponse, TotalCountHandler>();
-                cfg.AddBuffer<ListResourceRequestBuffer, ListResourceRequest, ListResourceResponse, ListResourceHandler>();
+                // Automatic
+                cfg.AutomaticConfiguration();
+
+                // manual
+                //cfg.AddBuffer<HelloWorldRequestBuffer, HelloWorldRequest, HelloWorldResponse, HelloWorldHandler>();
+                //cfg.AddBuffer<TotalCountRequestBuffer, TotalCountRequest, TotalCountResponse, TotalCountHandler>();
+                //cfg.AddBuffer<ListResourceRequestBuffer, ListResourceRequest, ListResourceResponse, ListResourceHandler>();
+
+                // manual with no handler 
+                //cfg.AddBuffer<HelloWorldRequestBuffer, HelloWorldRequest, HelloWorldResponse>();
+                //cfg.AddBuffer<TotalCountRequestBuffer, TotalCountRequest, TotalCountResponse>();
+                //cfg.AddBuffer<ListResourceRequestBuffer, ListResourceRequest, ListResourceResponse>();
             })
 
             .BuildServiceProvider();

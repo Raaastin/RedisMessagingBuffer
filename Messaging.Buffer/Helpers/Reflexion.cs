@@ -39,6 +39,33 @@ namespace Messaging.Buffer.Helpers
         {
             return GetTypesWithAttribute<HandlerAttribute>().Where(x => x.IsClass && !x.IsAbstract);
         }
+
+        /// <summary>
+        /// Return the list of existing Requests
+        /// </summary>
+        /// <returns></returns>
+        static public IEnumerable<Type> GetRequestTypes()
+        {
+            return GetTypesWithAttribute<RequestAttribute>().Where(x => x.IsClass && !x.IsAbstract);
+        }
+
+        /// <summary>
+        /// Return the list of existing Responses
+        /// </summary>
+        /// <returns></returns>
+        static public IEnumerable<Type> GetResponseTypes()
+        {
+            return GetTypesWithAttribute<ResponseAttribute>().Where(x => x.IsClass && !x.IsAbstract);
+        }
+
+        /// <summary>
+        /// Return the list of existing Responses
+        /// </summary>
+        /// <returns></returns>
+        static public IEnumerable<Type> GetRequestBufferTypes()
+        {
+            return GetTypesWithAttribute<RequestBufferAttribute>().Where(x => x.IsClass && !x.IsAbstract);
+        }
     }
 
 }
