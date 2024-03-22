@@ -42,6 +42,26 @@ namespace Messaging.Buffer.Service
             return this;
         }
 
+        /// <summary>
+        /// Register a buffer, request, response, handler
+        /// </summary>
+        /// <typeparam name="TBuffer"></typeparam>
+        /// <typeparam name="TRequest"></typeparam>
+        /// <typeparam name="TResponse"></typeparam>
+        /// <typeparam name="THandler"></typeparam>
+        /// <returns></returns>
+        public MessagingConfigurator AddBuffer<TBuffer, TRequest, TResponse, THandler>()
+            where TBuffer : RequestBufferBase<TRequest, TResponse>
+            where TRequest : RequestBase
+            where TResponse : ResponseBase
+            where THandler : HandlerBase<TRequest>
+        {
+            _services.AddTransient<TBuffer>();
+            _services.AddTransient<TRequest>();
+            _services.AddSingleton<THandler>();
+            return this;
+        }
+
 
         /// <summary>
         /// Register a handler for a request
@@ -58,7 +78,6 @@ namespace Messaging.Buffer.Service
         /// <summary>
         /// Register all handlers that reference HandlerAttribute
         /// </summary>
-        /// <param name="services"></param>
         /// <returns></returns>
         public MessagingConfigurator RegisterHandlers()
         {

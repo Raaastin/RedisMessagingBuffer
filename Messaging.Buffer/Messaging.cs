@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text.Json.Nodes;
 using Messaging.Buffer.Attributes;
 using Messaging.Buffer.Buffer;
@@ -315,6 +316,14 @@ namespace Messaging.Buffer
                 string subscribed = await handlerService.Subscribe();
                 HandlerSubscribedList.Add(subscribed);
             }
+        }
+
+        /// <inheritdoc/>
+        public async Task SubscribeHandler<THandler, TRequest>() where THandler : HandlerBase<TRequest> where TRequest : RequestBase
+        {
+            dynamic handlerService = _serviceProvider.GetRequiredService(typeof(THandler));
+            string subscribed = await handlerService.Subscribe();
+            HandlerSubscribedList.Add(subscribed);
         }
 
         #endregion
