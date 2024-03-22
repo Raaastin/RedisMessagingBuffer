@@ -66,8 +66,8 @@ namespace Messaging.Buffer.Service
         /// <returns></returns>
         public static IServiceCollection RegisterHandlers(this IServiceCollection services)
         {
-            var handlers = Reflexion.GetTypesWithAttribute<HandlerAttribute>();
-            foreach(var handler in handlers)
+            var handlers = Reflexion.GetHandlerTypes();
+            foreach (var handler in handlers)
             {
                 services.AddSingleton(handler);
             }

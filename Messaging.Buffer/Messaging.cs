@@ -305,8 +305,8 @@ namespace Messaging.Buffer
         /// <inheritdoc/>
         public async Task SubscribeHandlers()
         {
-            var Handlers = Reflexion.GetTypesWithAttribute<HandlerAttribute>();
-            foreach (var handler in Handlers)
+            var handlers = Reflexion.GetHandlerTypes();
+            foreach (var handler in handlers)
             {
                 if (HandlerSubscribedList.Contains(handler.Name))
                     throw new SubscriptionException($"Dupplicate handler detected. Handler : {handler.Name}.");

@@ -19,7 +19,7 @@ namespace Messaging.Buffer.Helpers
         static public IEnumerable<Type> GetTypesWithAttribute<TAttribute>()
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (var assembly  in assemblies)
+            foreach (var assembly in assemblies)
             {
                 foreach (Type type in assembly.GetTypes())
                 {
@@ -29,7 +29,15 @@ namespace Messaging.Buffer.Helpers
                     }
                 }
             }
+        }
 
+        /// <summary>
+        /// Return the list of existing Handlers
+        /// </summary>
+        /// <returns></returns>
+        static public IEnumerable<Type> GetHandlerTypes()
+        {
+            return GetTypesWithAttribute<HandlerAttribute>().Where(x => x.IsClass && !x.IsAbstract);
         }
     }
 

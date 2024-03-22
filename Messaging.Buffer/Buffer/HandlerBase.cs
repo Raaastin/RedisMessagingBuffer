@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Messaging.Buffer.Attributes;
+using Microsoft.Extensions.Logging;
 
 namespace Messaging.Buffer.Buffer
 {
@@ -6,6 +7,7 @@ namespace Messaging.Buffer.Buffer
     /// Base class for handlers
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
+    [Handler]
     public abstract class HandlerBase<TRequest> where TRequest : RequestBase
     {
         protected IMessaging _messaging;

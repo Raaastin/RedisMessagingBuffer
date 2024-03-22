@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Messaging.Buffer.TestApp.Handlers
 {
-    [Handler]
     public class TotalCountHandler : HandlerBase<TotalCountRequest>
     {
         public TotalCountHandler(ILogger<TotalCountHandler> logger, IMessaging messaging) : base(logger, messaging)
