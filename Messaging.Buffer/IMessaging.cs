@@ -62,6 +62,15 @@ namespace Messaging.Buffer
         /// <exception cref="SubscriptionException">Subscribtion already exists or is conflicting with another</exception>
         Task SubscribeHandlers();
 
+
+        /// <summary>
+        /// Subscribe Handler
+        /// </summary>
+        /// <typeparam name="THandler"></typeparam>
+        /// <typeparam name="TRequest"></typeparam>
+        /// <returns></returns>
+        Task SubscribeHandler<THandler, TRequest>() where THandler : HandlerBase<TRequest> where TRequest : RequestBase;
+
         /// <summary>
         /// Unsubscribe for Requests
         /// </summary>

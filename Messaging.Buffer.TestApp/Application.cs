@@ -17,11 +17,18 @@ namespace Messaging.Buffer.TestApp
 
         private int personalCount = 5;
 
+        public List<string> ResourceList { get; set; } = new();
+
         public Application(IMessaging messaging, ILogger<Application> logger, IServiceProvider serviceProvider)
         {
             _logger = logger;
             _messaging = messaging;
             _serviceProvider = serviceProvider;
+
+            //Generate dummy resources: 
+            ResourceList.Add(DateTime.UtcNow.Millisecond.ToString());
+            ResourceList.Add(DateTime.UtcNow.Second.ToString());
+            ResourceList.Add(DateTime.UtcNow.ToLongDateString());
 
             // example of subscribe any
             //_messaging.SubscribeAnyRequestAsync(OnRequest);
@@ -32,6 +39,23 @@ namespace Messaging.Buffer.TestApp
 
             // exemple of subscribe per handler (subscribe any request that has a handler defined)
             //_messaging.SubscribeHandlers();
+        }
+
+        public async Task RunListResource_UsingHandler()
+        {
+            await _messaging.SubscribeHandler<ListResourceHandler, ListResourceRequest>();
+
+            var testBuffer = _serviceProvider.GetService<ListResourceRequestBuffer>();
+            testBuffer.timeoutMs = 1500;
+            var response = await testBuffer.SendRequestAsync();
+
+            _logger.LogInformation($"Resource list from all instances:");
+            foreach(var resource in response.ResourceList)
+            {
+                _logger.LogInformation(resource);
+            }
+
+            await _messaging.UnsubscribeRequestAsync<ListResourceRequest>();
         }
 
         /// <summary>
@@ -110,7 +134,7 @@ namespace Messaging.Buffer.TestApp
         /// </summary>
         public async Task RunHelloWorl_UsingHandler()
         {
-            await _messaging.SubscribeHandlers();
+            await _messaging.SubscribeHandler<HelloWorldHandler, HelloWorldRequest>();
 
             _logger.LogTrace("Performing HelloWorld process");
 
@@ -121,7 +145,6 @@ namespace Messaging.Buffer.TestApp
             _logger.LogInformation($"HelloWorld test: \r\n" + response.InstanceResponse);
 
             await _messaging.UnsubscribeRequestAsync<HelloWorldRequest>();
-            await _messaging.UnsubscribeRequestAsync<TotalCountRequest>();
         }
 
         /// <summary>
@@ -129,7 +152,7 @@ namespace Messaging.Buffer.TestApp
         /// </summary>
         public async Task RunTotalCount_UsingHandler()
         {
-            await _messaging.SubscribeHandlers();
+            await _messaging.SubscribeHandler<TotalCountHandler, TotalCountRequest>();
 
             _logger.LogTrace("Performing HelloWorld process");
 
@@ -138,7 +161,6 @@ namespace Messaging.Buffer.TestApp
 
             _logger.LogInformation($"TotalCount test (from a handler) : (expected 100 + 5 per instance running). RESULT: " + response.Count);
 
-            await _messaging.UnsubscribeRequestAsync<HelloWorldRequest>();
             await _messaging.UnsubscribeRequestAsync<TotalCountRequest>();
         }
 

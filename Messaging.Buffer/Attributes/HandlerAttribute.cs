@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Messaging.Buffer.Attributes
 {
-    public class HandlerAttribute : Attribute
+    internal class HandlerAttribute : Attribute
     {
     }
 }

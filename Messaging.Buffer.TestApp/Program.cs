@@ -19,19 +19,20 @@ public class Program
             .AddSingleton<Application>()
             .AddLogging(x => { x.AddConsole(); x.SetMinimumLevel(LogLevel.Information); })
 
-            // Register the service and any buffer
-            .AddMessagingBuffer(Configuration, "Redis")
-
-            // Register buffer classes
-            .AddBuffer<HelloWorldRequestBuffer, HelloWorldRequest, HelloWorldResponse>()
-            .AddBuffer<TotalCountRequestBuffer, TotalCountRequest, TotalCountResponse>()
-
-            // register handlers
-            .RegisterHandlers()
+            // Register and configure the service
+            .AddMessagingBuffer(Configuration, "Redis", (cfg) =>
+            {
+                cfg.AddBuffer<HelloWorldRequestBuffer, HelloWorldRequest, HelloWorldResponse, HelloWorldHandler>();
+                cfg.AddBuffer<TotalCountRequestBuffer, TotalCountRequest, TotalCountResponse, TotalCountHandler>();
+                cfg.AddBuffer<ListResourceRequestBuffer, ListResourceRequest, ListResourceResponse, ListResourceHandler>();
+            })
 
             .BuildServiceProvider();
 
         var app = serviceProvider.GetService<Application>();
+
+        Console.WriteLine("***********  RunListResource_UsingHandler ************");
+        await app.RunListResource_UsingHandler();
 
         Console.WriteLine("***********  Test_Sub_Unsub_Resub ************");
         await app.Test_Sub_Unsub_Resub();

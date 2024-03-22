@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Messaging.Buffer.TestApp.Handlers
 {
-    [Handler]
     public class HelloWorldHandler : HandlerBase<HelloWorldRequest>
     {
         public HelloWorldHandler(ILogger<HelloWorldHandler> logger, IMessaging messaging) : base(logger, messaging)
