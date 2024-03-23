@@ -62,6 +62,19 @@ namespace Messaging.Buffer.Service
             return this;
         }
 
+        /// <summary>
+        /// Automatically search and register requests, responses, buffers and handlers.
+        /// </summary>
+        /// <returns></returns>
+        public MessagingConfigurator AutomaticConfiguration()
+        {
+            RegisterRequests();
+            RegisterRequestBuffers();
+            RegisterHandlers();
+
+            return this;
+        }
+
 
         /// <summary>
         /// Register a handler for a request
@@ -85,6 +98,34 @@ namespace Messaging.Buffer.Service
             foreach (var handler in handlers)
             {
                 _services.AddSingleton(handler);
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Register all requests that reference RequestAttribute
+        /// </summary>
+        /// <returns></returns>
+        public MessagingConfigurator RegisterRequests()
+        {
+            var requests = Reflexion.GetRequestTypes();
+            foreach (var request in requests)
+            {
+                _services.AddTransient(request);
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Register all request buffers that reference RequestBufferAttribute
+        /// </summary>
+        /// <returns></returns>
+        public MessagingConfigurator RegisterRequestBuffers()
+        {
+            var buffers = Reflexion.GetRequestBufferTypes();
+            foreach (var buffer in buffers)
+            {
+                _services.AddTransient(buffer);
             }
             return this;
         }
