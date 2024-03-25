@@ -46,7 +46,7 @@ namespace Messaging.Buffer.TestApp
             await _messaging.SubscribeHandler<ListResourceHandler, ListResourceRequest>();
 
             var testBuffer = _serviceProvider.GetService<ListResourceRequestBuffer>();
-            testBuffer.timeoutMs = 1500;
+            testBuffer.TimeoutMs = 1500;
             var response = await testBuffer.SendRequestAsync();
 
             _logger.LogInformation($"Resource list from all instances:");
@@ -73,7 +73,7 @@ namespace Messaging.Buffer.TestApp
 
             // Check sub result with 1 call
             var testBuffer = _serviceProvider.GetService<HelloWorldRequestBuffer>();
-            testBuffer.timeoutMs = 1500;
+            testBuffer.TimeoutMs = 1500;
             var response = await testBuffer.SendRequestAsync();
             _logger.LogInformation($"HelloWorld after multiple sub/unsub: " + response.InstanceResponse);
 
@@ -101,7 +101,7 @@ namespace Messaging.Buffer.TestApp
             await _messaging.SubscribeAnyRequestAsync((object e, ReceivedEventArgs args) => { test_count++; });
 
             var testBuffer = _serviceProvider.GetService<HelloWorldRequestBuffer>();
-            testBuffer.timeoutMs = 2000;
+            testBuffer.TimeoutMs = 2000;
             var response = await testBuffer.SendRequestAsync();
             if (test_count == 1)
                 _logger.LogInformation($"{nameof(Test_Sub_Unsub_Resub2)} Single sub: SUCCESS");
