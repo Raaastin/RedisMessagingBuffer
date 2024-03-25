@@ -9,5 +9,10 @@
         /// List of redis connexion string
         /// </summary>
         public List<string> RedisConnexionStrings { get; set; }
+
+        /// <summary>
+        /// Buffer timeout (ms)
+        /// </summary>
+        public int Timeout { get; set; } = 10000;
     }
 }

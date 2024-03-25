@@ -2,7 +2,10 @@
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks.Sources;
 using Messaging.Buffer.Attributes;
+using Messaging.Buffer.Service;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 
@@ -27,7 +30,7 @@ namespace Messaging.Buffer.Buffer
         /// <summary>
         /// Buffer timeout (ms). Buffer ends when all responses are received, or after this delay.
         /// </summary>
-        public int timeoutMs { get; set; } = 10000;
+        public int TimeoutMs { get; set; } = 10000;
         /// <summary>
         /// Unique identifier for buffer and request.
         /// </summary>
@@ -52,8 +55,8 @@ namespace Messaging.Buffer.Buffer
         /// <summary>
         /// Method fired when a response is received
         /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="value"></param>
+        /// <param name="sender"></param>
+        /// <param name="eventArgs"></param>
         internal void OnResponse(object sender, ReceivedEventArgs eventArgs)
         {
             _logger.LogTrace("Response received {Channel} - {CorrelationId}", eventArgs.Channel, eventArgs.CorrelationId);
@@ -121,11 +124,11 @@ namespace Messaging.Buffer.Buffer
         protected async Task<bool> WaitAllResponse()
         {
             var result = true;
-            var taskDelay = Task.Delay(timeoutMs);
+            var taskDelay = Task.Delay(TimeoutMs);
             await Task.WhenAny(Task.WhenAll(TcsList.Select(x => x.Value.Task)), taskDelay);
             if (taskDelay.IsCompleted)
             {
-                _logger.LogTrace("Buffer {CorrelationId} timedout after {delay} ms.", CorrelationId, timeoutMs);
+                _logger.LogTrace("Buffer {CorrelationId} timedout after {delay} ms.", CorrelationId, TimeoutMs);
                 result = false;
                 foreach (var tcs in TcsList.Select(x => x.Value))
                     tcs.TrySetCanceled();
@@ -140,12 +143,34 @@ namespace Messaging.Buffer.Buffer
 
         #region Ctor
 
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="messaging"></param>
+        /// <param name="request"></param>
+        /// <param name="logger"></param>
         public RequestBufferBase(IMessaging messaging, TRequest request, ILogger<RequestBufferBase<TRequest, TResponse>> logger)
         {
             _messaging = messaging;
             _logger = logger;
             Request = request;
             CorrelationId = Guid.NewGuid().ToString();
+        }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        public RequestBufferBase(IServiceProvider serviceProvider)
+        {
+            _messaging = serviceProvider.GetRequiredService<IMessaging>();
+            _logger = serviceProvider.GetRequiredService<ILogger<RequestBufferBase<TRequest, TResponse>>>();
+            Request = serviceProvider.GetRequiredService<TRequest>();
+            CorrelationId = Guid.NewGuid().ToString();
+
+            var options = serviceProvider.GetService<IOptions<RedisOptions>>();
+            if (options is not null)
+                TimeoutMs = options.Value.Timeout;
         }
 
         #endregion

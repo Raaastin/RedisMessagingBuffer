@@ -7,6 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Messaging.Buffer.Service
 {
+    /// <summary>
+    /// Extension for IServiceCollection
+    /// </summary>
     public static class ServiceExtension
     {
         #region Public Methods
