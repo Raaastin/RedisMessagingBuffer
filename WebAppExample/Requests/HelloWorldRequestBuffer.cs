@@ -18,7 +18,7 @@ namespace WebAppExample.Requests
 
     public class HelloWorldRequestBuffer : RequestBufferBase<HelloWorldRequest, HelloWorldResponse>
     {
-        public HelloWorldRequestBuffer(IMessaging messaging, HelloWorldRequest request, ILogger<HelloWorldRequestBuffer> logger) : base(messaging, request, logger)
+        public HelloWorldRequestBuffer(IServiceProvider serviceProvider) : base(serviceProvider)
         {
         }
 
