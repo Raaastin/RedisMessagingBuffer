@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Messaging.Buffer.Attributes;
 using Messaging.Buffer.Buffer;
 using Messaging.Buffer.Redis;
+using Messaging.Buffer.Test.Buffers;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Moq;
@@ -17,7 +18,6 @@ using Xunit.Sdk;
 
 namespace Messaging.Buffer.Test.MessagingTest
 {
-    [Handler]
     public class TestHandler : HandlerBase<TestRequest>
     {
         public TestHandler(ILogger<TestHandler> logger, IMessaging messaging) : base(logger, messaging)

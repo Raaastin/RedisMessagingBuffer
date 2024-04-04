@@ -7,6 +7,7 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 using Messaging.Buffer.Buffer;
 using Messaging.Buffer.Redis;
+using Messaging.Buffer.Test.Buffers;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;

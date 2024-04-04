@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Messaging.Buffer.Buffer;
 using Messaging.Buffer.Exceptions;
 using Messaging.Buffer.Redis;
+using Messaging.Buffer.Test.Buffers;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Moq;

@@ -15,19 +15,6 @@ using Xunit.Sdk;
 
 namespace Messaging.Buffer.Test.MessagingTest
 {
-    public class TestRequest : RequestBase
-    {
-        public string key { get; set; } = "value";
-    }
-    public class TestResponse : ResponseBase
-    {
-        public TestResponse(string correlationId) : base(correlationId)
-        {
-        }
-
-        public string key { get; set; } = "value";
-    }
-
     public class MessagingTestBase
     {
         protected Messaging _service;
